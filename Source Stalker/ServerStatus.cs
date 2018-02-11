@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+//https://developer.valvesoftware.com/wiki/Server_queries
+
 namespace Source_Stalker {
     class ServerStatus {
         private string _hostname;
@@ -14,6 +16,7 @@ namespace Source_Stalker {
             INVALID,
             UNRESOLVED,
             QUERY_SENT,
+            PARTIAL_ANSWER_RECEIVED,
             ANSWER_RECEIVED
         }
 
@@ -46,6 +49,38 @@ namespace Source_Stalker {
             client.Send(ba, ba.Length);
         }
 
+        private class ResponseReader {
+            private byte[][] responses;
+
+            private void ReadResponseDatagram(BinaryReader r) {
+                uint Header = r.ReadUInt32();
+                if(Header==0xFFFFFFFF) {
+                    ParseResponseMessage(r);
+                } else if(Header==0xFFFFFFFE) {
+                    ParseSplitResponse(r);
+                }
+            }
+
+            private BaseResponse ParseResponseMessage(BinaryReader r) {
+                byte messageType = r.ReadByte();
+                switch(messageType) {
+                    case 0x49: return new A2S_INFO_Response(r);
+
+                    case 0x6D://obsolete goldsource info request response
+                    case 0x41://challenge number request response
+                    case 0x44://player info request response
+                    case 0x45://rules request response
+                    case 0x6A://obsolete ping request response
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+
+            private void ParseSplitResponse(BinaryReader r) {
+                throw new NotImplementedException();
+            }
+        }
+
         private class A2S_INFO_Request : BaseQuery {
 
             private const byte Header = 0x54;
@@ -60,8 +95,7 @@ namespace Source_Stalker {
             }
         }
 
-        private class A2S_INFO_Response {
-            private const byte Header = 0x49;
+        private class A2S_INFO_Response : BaseResponse {
             public byte Protocol;
             public string ServerName;
             public string Map;
@@ -80,6 +114,7 @@ namespace Source_Stalker {
             public ushort STVPortNumber;
             public string STVHostName;
             public string Tags;
+            public ulong ServerSteamId;
 
             private const byte HasPortNumber = 0x80;
             private const byte HasSteamId = 0x10;
@@ -90,38 +125,44 @@ namespace Source_Stalker {
             public A2S_INFO_Response(Stream s) {
                 Read(s);
             }
+            public A2S_INFO_Response(BinaryReader r) {
+                Read(r);
+            }
 
             private void Read(Stream s) {
                 using(BinaryReader r=new BinaryReader(s,Encoding.UTF8)) {
-                    if(r.ReadByte() != Header) throw new ArgumentException();
-                    Protocol = r.ReadByte();
-                    ServerName = r.ReadNullTerminatedString();
-                    Map = r.ReadNullTerminatedString();
-                    Folder = r.ReadNullTerminatedString();
-                    Game = r.ReadNullTerminatedString();
-                    ID = r.ReadInt16();
-                    PlayerCount = r.ReadByte();
-                    MaxPlayerCount = r.ReadByte();
-                    BotCount = r.ReadByte();
-                    ServerType = ParseServerType(r.ReadByte());
-                    Environment = ParseEnvironment(r.ReadByte());
-                    PasswordRequired = r.ReadBoolean();
-                    VACEnabled = r.ReadBoolean();
-                    GameVersion = r.ReadNullTerminatedString();
-                    byte EDF = r.ReadByte();
-                    if((EDF & HasPortNumber)== HasPortNumber) {
-                        PortNumber = r.ReadUInt16();
-                    }
-                    if((EDF&HasSteamId)==HasSteamId) {
-                        throw new NotImplementedException();
-                    }
-                    if((EDF&HasSTV)==HasSTV) {
-                        STVPortNumber = r.ReadUInt16();
-                        STVHostName = r.ReadNullTerminatedString();
-                    }
-                    if((EDF & HasTags) == HasTags) {
-                        Tags = r.ReadNullTerminatedString();
-                    }
+                    Read(r);
+                }
+            }
+
+            private void Read(BinaryReader r) {
+                Protocol = r.ReadByte();
+                ServerName = r.ReadNullTerminatedString();
+                Map = r.ReadNullTerminatedString();
+                Folder = r.ReadNullTerminatedString();
+                Game = r.ReadNullTerminatedString();
+                ID = r.ReadInt16();
+                PlayerCount = r.ReadByte();
+                MaxPlayerCount = r.ReadByte();
+                BotCount = r.ReadByte();
+                ServerType = ParseServerType(r.ReadByte());
+                Environment = ParseEnvironment(r.ReadByte());
+                PasswordRequired = r.ReadBoolean();
+                VACEnabled = r.ReadBoolean();
+                GameVersion = r.ReadNullTerminatedString();
+                byte EDF = r.ReadByte();
+                if((EDF & HasPortNumber) == HasPortNumber) {
+                    PortNumber = r.ReadUInt16();
+                }
+                if((EDF & HasSteamId) == HasSteamId) {
+                    ServerSteamId=r.ReadUInt64();
+                }
+                if((EDF & HasSTV) == HasSTV) {
+                    STVPortNumber = r.ReadUInt16();
+                    STVHostName = r.ReadNullTerminatedString();
+                }
+                if((EDF & HasTags) == HasTags) {
+                    Tags = r.ReadNullTerminatedString();
                 }
             }
 
@@ -160,5 +201,9 @@ namespace Source_Stalker {
         private abstract class BaseQuery {
             abstract public void BuildQuery(Stream s);
         }
+        private abstract class BaseResponse {
+        }
     }
+
+
 }
