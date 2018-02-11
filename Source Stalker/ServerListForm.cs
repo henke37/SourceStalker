@@ -9,9 +9,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Source_Stalker {
-    public partial class Form1 : Form {
-        public Form1() {
+    public partial class ServerListForm : Form {
+
+        private List<ServerStatus> servers;
+
+        public ServerListForm() {
             InitializeComponent();
+        }
+
+        private void UpdateServerStatuses() {
+
         }
     }
 }
