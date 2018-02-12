@@ -17,5 +17,13 @@ namespace Source_Stalker {
                 return new string(Encoding.UTF8.GetChars(ms.ToArray()));
             }
         }
+
+        static public byte[] ReadRemainingBytes(this BinaryReader r) {
+            return r.ReadBytes((int)r.BaseStream.BytesAvailable());
+        }
+
+        static public long BytesAvailable(this Stream s) {
+            return s.Length - s.Position;
+        }
     }
 }

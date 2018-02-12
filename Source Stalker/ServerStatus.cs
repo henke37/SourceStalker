@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ICSharpCode.SharpZipLib.BZip2;
 
 //https://developer.valvesoftware.com/wiki/Server_queries
 
@@ -18,6 +19,12 @@ namespace Source_Stalker {
         private Socket client;
 
         public A2S_INFO_Response info;
+        public A2S_RULES_Response rules;
+
+        public DateTime queryTime;
+        private DateTime responseTime;
+
+        public TimeSpan PingTime { get => responseTime - queryTime; }
 
         public enum State {
             INVALID,
@@ -30,7 +37,7 @@ namespace Source_Stalker {
 
         public State state = State.INVALID;
         private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
-        private const int TIMEOUT_ERR_CODE=10060;
+        private const int TIMEOUT_ERR_CODE = 10060;
 
         public ServerStatus() {
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
@@ -55,9 +62,18 @@ namespace Source_Stalker {
 
         public async Task Update() {
             state = State.QUERY_SENT;
+            queryTime = DateTime.Now;
             try {
                 info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
                 state = State.ANSWER_RECEIVED;
+                responseTime = DateTime.Now;
+
+                BaseResponse r = await SendQuery(new A2S_RULES_Query());
+                A2S_SERVERQUERY_GETCHALLENGE_Response chr = r as A2S_SERVERQUERY_GETCHALLENGE_Response;
+                if(chr != null) {
+                    r = await SendQuery(new A2S_RULES_Query(chr.Challenge));
+                }
+                rules = (A2S_RULES_Response)r;
             } catch(SocketException err) {
                 if(err.ErrorCode != TIMEOUT_ERR_CODE) throw;
                 state = State.TIME_OUT;
@@ -79,6 +95,8 @@ namespace Source_Stalker {
 
         private class ResponseReader {
             private byte[][] responses;
+
+            private uint ResponseID;
 
             private Socket client;
 
@@ -102,13 +120,14 @@ namespace Source_Stalker {
 
             private BaseResponse ParseResponseMessage(BinaryReader r) {
                 byte messageType = r.ReadByte();
+
                 switch(messageType) {
                     case 0x49: return new A2S_INFO_Response(r);
+                    case 0x41: return new A2S_SERVERQUERY_GETCHALLENGE_Response(r);
+                    case 0x45: return new A2S_RULES_Response(r);
 
-                    case 0x6D://obsolete goldsource info request response
-                    case 0x41://challenge number request response
                     case 0x44://player info request response
-                    case 0x45://rules request response
+                    case 0x6D://obsolete goldsource info request response
                     case 0x6A://obsolete ping request response
                     default:
                         throw new NotImplementedException();
@@ -116,12 +135,48 @@ namespace Source_Stalker {
             }
 
             private BaseResponse ParseSplitResponse(BinaryReader r) {
-                if(responses != null) ;
-                throw new NotImplementedException();
+                uint ID = r.ReadUInt32();
+                byte total = r.ReadByte();
+                byte number = r.ReadByte();
+                ushort maxPacketSize = r.ReadUInt16();
+
+                if(responses == null) {
+                    responses = new byte[total][];
+                    ResponseID = ID;
+                }
+                if(ID != ResponseID) {
+                    return null;//bogus response
+                }
+                responses[number] = r.ReadRemainingBytes();
+
+                int totalSize = 0;
+                for(byte responseIndex = 0; responseIndex < responses.Length; ++responseIndex) {
+                    var response = responses[responseIndex];
+                    if(response == null) return null;
+                    totalSize += response.Length;
+                }
+
+                Stream s = new MemoryStream(totalSize);
+                for(byte responseIndex = 0; responseIndex < responses.Length; ++responseIndex) {
+                    var response = responses[responseIndex];
+                    s.Write(response, 0, response.Length);
+                }
+                s.Position = 0;
+
+                const uint CompressionFlag = 0x80000000;
+                if((ID & CompressionFlag) == CompressionFlag) {
+                    using(var compr = new BinaryReader(s,Encoding.Default,true)) {
+                        uint DecompressedSize = r.ReadUInt32();
+                        uint CRC32Val = r.ReadUInt32();
+                        s = new BZip2InputStream(s);
+                    }
+                }
+
+                return ReadResponseDatagram(new BinaryReader(s));
             }
 
             internal Task<BaseResponse> ReadResponse() {
-                var t=new Task<BaseResponse>(delegate {
+                var t = new Task<BaseResponse>(delegate {
                     while(true) {
                         byte[] ba = new byte[1400];
                         var ep = client.RemoteEndPoint;
@@ -250,6 +305,48 @@ namespace Source_Stalker {
                 LINUX = 'l',
                 WINDOWS = 'w',
                 MAC = 'm'
+            }
+        }
+
+        private class A2S_RULES_Query : BaseQuery {
+            private const byte Header = 0x56;
+            public uint Challenge;
+
+            public A2S_RULES_Query() {
+                Challenge = 0xFFFFFFFF;
+            }
+
+            public A2S_RULES_Query(uint challenge) {
+                Challenge = challenge;
+            }
+
+            public override void BuildQuery(Stream s) {
+                using(BinaryWriter w = new BinaryWriter(s, Encoding.UTF8)) {
+                    w.Write(Header);
+                    w.Write(Challenge);
+                }
+            }
+        }
+        public class A2S_RULES_Response : BaseResponse {
+
+            public Dictionary<string, string> rules;
+
+            public A2S_RULES_Response(BinaryReader r) {
+                rules = new Dictionary<string, string>();
+
+                ushort ruleCount = r.ReadUInt16();
+                for(ushort ruleIndex=0;ruleIndex<ruleCount;++ruleIndex) {
+                    string key = r.ReadNullTerminatedString();
+                    string value = r.ReadNullTerminatedString();
+                    rules.Add(key, value);
+                }
+            }
+        }
+
+        public class A2S_SERVERQUERY_GETCHALLENGE_Response : BaseResponse {
+            public uint Challenge;
+            public A2S_SERVERQUERY_GETCHALLENGE_Response(BinaryReader r) {
+                Challenge = r.ReadUInt32();
             }
         }
 
