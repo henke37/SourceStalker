@@ -68,8 +68,8 @@ namespace Source_Stalker {
                 state = State.ANSWER_RECEIVED;
                 responseTime = DateTime.Now;
 
-                rules = (A2S_RULES_Response) await SendChallengeQuery(new A2S_RULES_Query());
-                players = (A2S_PLAYER_Response) await SendChallengeQuery(new A2S_PLAYER_Query());
+                rules = (A2S_RULES_Response)await SendChallengeQuery(new A2S_RULES_Query());
+                players = (A2S_PLAYER_Response)await SendChallengeQuery(new A2S_PLAYER_Query());
 
             } catch(SocketException err) {
                 if(err.ErrorCode != TIMEOUT_ERR_CODE) throw;
@@ -133,7 +133,7 @@ namespace Source_Stalker {
                     case 0x41: return new A2S_SERVERQUERY_GETCHALLENGE_Response(r);
                     case 0x45: return new A2S_RULES_Response(r);
                     case 0x44: return new A2S_PLAYER_Response(r);
-                    
+
                     case 0x6D://obsolete goldsource info request response
                     case 0x6A://obsolete ping request response
                     default:
@@ -172,7 +172,7 @@ namespace Source_Stalker {
 
                 const uint CompressionFlag = 0x80000000;
                 if((ID & CompressionFlag) == CompressionFlag) {
-                    using(var compr = new BinaryReader(s,Encoding.Default,true)) {
+                    using(var compr = new BinaryReader(s, Encoding.Default, true)) {
                         uint DecompressedSize = r.ReadUInt32();
                         uint CRC32Val = r.ReadUInt32();
                         s = new BZip2InputStream(s);
@@ -339,8 +339,8 @@ namespace Source_Stalker {
 
         private class A2S_RULES_Query : BaseChallengeQuery {
             private const byte Header = 0x56;
-            public A2S_RULES_Query() : base(Header) {}
-            public A2S_RULES_Query(uint challenge) : base(Header,challenge) {}
+            public A2S_RULES_Query() : base(Header) { }
+            public A2S_RULES_Query(uint challenge) : base(Header, challenge) { }
         }
 
         public class A2S_RULES_Response : BaseResponse {
@@ -351,7 +351,7 @@ namespace Source_Stalker {
                 rules = new Dictionary<string, string>();
 
                 ushort ruleCount = r.ReadUInt16();
-                for(ushort ruleIndex=0;ruleIndex<ruleCount;++ruleIndex) {
+                for(ushort ruleIndex = 0; ruleIndex < ruleCount; ++ruleIndex) {
                     string key = r.ReadNullTerminatedString();
                     string value = r.ReadNullTerminatedString();
                     rules.Add(key, value);
@@ -374,7 +374,7 @@ namespace Source_Stalker {
 
                 Players = new Player[playerCount];
 
-                for(byte playerIndex=0;playerIndex<playerCount;++playerIndex) {
+                for(byte playerIndex = 0; playerIndex < playerCount; ++playerIndex) {
                     byte index = r.ReadByte();
                     string name = r.ReadNullTerminatedString();
                     int score = r.ReadInt32();
