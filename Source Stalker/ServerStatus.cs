@@ -19,16 +19,16 @@ namespace Source_Stalker {
 
         public A2S_INFO_Response info;
 
-        private enum State {
+        public enum State {
             INVALID,
             HOSTNAME_UNRESOLVED,
             HOSTNAME_RESOLVED,
             QUERY_SENT,
-            PARTIAL_ANSWER_RECEIVED,
             ANSWER_RECEIVED
         }
 
-        private State state = State.INVALID;
+        public State state = State.INVALID;
+        private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
 
         public ServerStatus() {
             client = new UdpClient();
@@ -50,19 +50,21 @@ namespace Source_Stalker {
             client.Connect(resolvedHost.AddressList[0], port);
         }
 
-        public async void Update() {
+        public async Task Update() {
+            state = State.QUERY_SENT;
             info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
+            state = State.ANSWER_RECEIVED;
         }
 
         private async Task<BaseResponse> SendQuery(BaseQuery q) {
             byte[] ba;
             using(MemoryStream ms = new MemoryStream()) {
+                ms.Write(QueryPrefix, 0, QueryPrefix.Length);
                 q.BuildQuery(ms);
                 ba = ms.ToArray();
             }
 
             client.Send(ba, ba.Length);
-            state = State.QUERY_SENT;
             var reader = new ResponseReader(client);
             return await reader.ReadResponse();
         }
