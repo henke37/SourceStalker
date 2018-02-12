@@ -1,64 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 //https://developer.valvesoftware.com/wiki/Server_queries
 
 namespace Source_Stalker {
     class ServerStatus {
         private string _hostname;
+        private IPHostEntry resolvedHost;
+        public short port;
+
+        private UdpClient client;
+
+        public A2S_INFO_Response info;
 
         private enum State {
             INVALID,
-            UNRESOLVED,
+            HOSTNAME_UNRESOLVED,
+            HOSTNAME_RESOLVED,
             QUERY_SENT,
             PARTIAL_ANSWER_RECEIVED,
             ANSWER_RECEIVED
         }
 
-        private State state=State.INVALID;
+        private State state = State.INVALID;
 
         public ServerStatus() {
-
+            client = new UdpClient();
         }
 
         public string HostName {
             get => _hostname;
             set {
                 _hostname = value;
-                state = State.UNRESOLVED;
                 resolveHostname();
             }
         }
 
-        private void resolveHostname() {
-            throw new NotImplementedException();
+        private async void resolveHostname() {
+            resolvedHost = null;
+            state = State.HOSTNAME_UNRESOLVED;
+            resolvedHost = await Dns.GetHostEntryAsync(_hostname);
+            state = State.HOSTNAME_RESOLVED;
+            client.Connect(resolvedHost.AddressList[0], port);
         }
 
-        private void SendQuery(UdpClient client, BaseQuery q) {
-            byte[] ba ;
+        public async void Update() {
+            info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
+        }
+
+        private async Task<BaseResponse> SendQuery(BaseQuery q) {
+            byte[] ba;
             using(MemoryStream ms = new MemoryStream()) {
                 q.BuildQuery(ms);
-                ba= ms.ToArray();
+                ba = ms.ToArray();
             }
 
             client.Send(ba, ba.Length);
+            state = State.QUERY_SENT;
+            var reader = new ResponseReader(client);
+            return await reader.ReadResponse();
         }
 
         private class ResponseReader {
             private byte[][] responses;
 
-            private void ReadResponseDatagram(BinaryReader r) {
+            private UdpClient client;
+
+            public ResponseReader(UdpClient client) {
+                this.client = client;
+            }
+
+            private BaseResponse ReadResponseDatagram(byte[] ba) {
+                return ReadResponseDatagram(new BinaryReader(new MemoryStream(ba)));
+            }
+
+            private BaseResponse ReadResponseDatagram(BinaryReader r) {
                 uint Header = r.ReadUInt32();
-                if(Header==0xFFFFFFFF) {
-                    ParseResponseMessage(r);
-                } else if(Header==0xFFFFFFFE) {
-                    ParseSplitResponse(r);
+                if(Header == 0xFFFFFFFF) {
+                    return ParseResponseMessage(r);
+                } else if(Header == 0xFFFFFFFE) {
+                    return ParseSplitResponse(r);
                 }
+                throw new NotImplementedException();
             }
 
             private BaseResponse ParseResponseMessage(BinaryReader r) {
@@ -76,8 +105,17 @@ namespace Source_Stalker {
                 }
             }
 
-            private void ParseSplitResponse(BinaryReader r) {
+            private BaseResponse ParseSplitResponse(BinaryReader r) {
+                if(responses != null) ;
                 throw new NotImplementedException();
+            }
+
+            internal async Task<BaseResponse> ReadResponse() {
+                while(true) {
+                    UdpReceiveResult rs = await client.ReceiveAsync();
+                    BaseResponse r = ReadResponseDatagram(rs.Buffer);
+                    if(r != null) return r;
+                }
             }
         }
 
@@ -87,7 +125,7 @@ namespace Source_Stalker {
             private const string Payload = "Source Engine Query";
 
             public override void BuildQuery(Stream s) {
-                using(BinaryWriter w = new BinaryWriter(s,Encoding.UTF8)) {
+                using(BinaryWriter w = new BinaryWriter(s, Encoding.UTF8)) {
                     w.Write(Header);
                     w.Write(Payload.ToArray());
                     w.Write((byte)0);
@@ -95,7 +133,7 @@ namespace Source_Stalker {
             }
         }
 
-        private class A2S_INFO_Response : BaseResponse {
+        public class A2S_INFO_Response : BaseResponse {
             public byte Protocol;
             public string ServerName;
             public string Map;
@@ -130,7 +168,7 @@ namespace Source_Stalker {
             }
 
             private void Read(Stream s) {
-                using(BinaryReader r=new BinaryReader(s,Encoding.UTF8)) {
+                using(BinaryReader r = new BinaryReader(s, Encoding.UTF8)) {
                     Read(r);
                 }
             }
@@ -155,7 +193,7 @@ namespace Source_Stalker {
                     PortNumber = r.ReadUInt16();
                 }
                 if((EDF & HasSteamId) == HasSteamId) {
-                    ServerSteamId=r.ReadUInt64();
+                    ServerSteamId = r.ReadUInt64();
                 }
                 if((EDF & HasSTV) == HasSTV) {
                     STVPortNumber = r.ReadUInt16();
@@ -186,22 +224,22 @@ namespace Source_Stalker {
             }
 
             public enum ServerTypeEnum {
-                DEDICATED='d',
-                LOCAL='l',
-                PROXY='p'
+                DEDICATED = 'd',
+                LOCAL = 'l',
+                PROXY = 'p'
             }
 
             public enum EnvironmentEnum {
-                LINUX='l',
-                WINDOWS='w',
-                MAC='m'
+                LINUX = 'l',
+                WINDOWS = 'w',
+                MAC = 'm'
             }
         }
 
         private abstract class BaseQuery {
             abstract public void BuildQuery(Stream s);
         }
-        private abstract class BaseResponse {
+        public abstract class BaseResponse {
         }
     }
 
