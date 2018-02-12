@@ -34,7 +34,7 @@ namespace Source_Stalker {
 
         public ServerStatus() {
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
-            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 3);
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 300);
         }
 
         public string HostName {
