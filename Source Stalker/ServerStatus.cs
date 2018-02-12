@@ -15,7 +15,7 @@ namespace Source_Stalker {
         private IPHostEntry resolvedHost;
         public short port;
 
-        private UdpClient client;
+        private Socket client;
 
         public A2S_INFO_Response info;
 
@@ -24,14 +24,17 @@ namespace Source_Stalker {
             HOSTNAME_UNRESOLVED,
             HOSTNAME_RESOLVED,
             QUERY_SENT,
-            ANSWER_RECEIVED
+            ANSWER_RECEIVED,
+            TIME_OUT
         }
 
         public State state = State.INVALID;
         private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+        private const int TIMEOUT_ERR_CODE=10060;
 
         public ServerStatus() {
-            client = new UdpClient();
+            client = new Socket(SocketType.Dgram, ProtocolType.Udp);
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 3);
         }
 
         public string HostName {
@@ -52,8 +55,13 @@ namespace Source_Stalker {
 
         public async Task Update() {
             state = State.QUERY_SENT;
-            info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
-            state = State.ANSWER_RECEIVED;
+            try {
+                info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
+                state = State.ANSWER_RECEIVED;
+            } catch(SocketException err) {
+                if(err.ErrorCode != TIMEOUT_ERR_CODE) throw;
+                state = State.TIME_OUT;
+            }
         }
 
         private async Task<BaseResponse> SendQuery(BaseQuery q) {
@@ -64,7 +72,7 @@ namespace Source_Stalker {
                 ba = ms.ToArray();
             }
 
-            client.Send(ba, ba.Length);
+            client.Send(ba);
             var reader = new ResponseReader(client);
             return await reader.ReadResponse();
         }
@@ -72,9 +80,9 @@ namespace Source_Stalker {
         private class ResponseReader {
             private byte[][] responses;
 
-            private UdpClient client;
+            private Socket client;
 
-            public ResponseReader(UdpClient client) {
+            public ResponseReader(Socket client) {
                 this.client = client;
             }
 
@@ -112,12 +120,19 @@ namespace Source_Stalker {
                 throw new NotImplementedException();
             }
 
-            internal async Task<BaseResponse> ReadResponse() {
-                while(true) {
-                    UdpReceiveResult rs = await client.ReceiveAsync();
-                    BaseResponse r = ReadResponseDatagram(rs.Buffer);
-                    if(r != null) return r;
-                }
+            internal Task<BaseResponse> ReadResponse() {
+                var t=new Task<BaseResponse>(delegate {
+                    while(true) {
+                        byte[] ba = new byte[1400];
+                        var ep = client.RemoteEndPoint;
+                        int recvCount = client.ReceiveFrom(ba, ref ep);
+                        Array.Resize<byte>(ref ba, recvCount);
+                        BaseResponse r = ReadResponseDatagram(ba);
+                        if(r != null) return r;
+                    }
+                });
+                t.Start();
+                return t;
             }
         }
 

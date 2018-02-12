@@ -22,6 +22,10 @@ namespace Source_Stalker {
 
         private async void updateBtn_ClickAsync(object sender, EventArgs e) {
             await st.Update();
+            if(st.state==ServerStatus.State.TIME_OUT) {
+                mapTxt.Text = "TIME_OUT";
+                return;
+            }
             mapTxt.Text = st.info.Map;
         }
     }
