@@ -20,7 +20,7 @@ namespace Source_Stalker {
 
         public A2S_INFO_Response info;
         public A2S_RULES_Response rules;
-
+        public A2S_PLAYER_Response players;
         public DateTime queryTime;
         private DateTime responseTime;
 
@@ -68,12 +68,9 @@ namespace Source_Stalker {
                 state = State.ANSWER_RECEIVED;
                 responseTime = DateTime.Now;
 
-                BaseResponse r = await SendQuery(new A2S_RULES_Query());
-                A2S_SERVERQUERY_GETCHALLENGE_Response chr = r as A2S_SERVERQUERY_GETCHALLENGE_Response;
-                if(chr != null) {
-                    r = await SendQuery(new A2S_RULES_Query(chr.Challenge));
-                }
-                rules = (A2S_RULES_Response)r;
+                rules = (A2S_RULES_Response) await SendChallengeQuery(new A2S_RULES_Query());
+                players = (A2S_PLAYER_Response) await SendChallengeQuery(new A2S_PLAYER_Query());
+
             } catch(SocketException err) {
                 if(err.ErrorCode != TIMEOUT_ERR_CODE) throw;
                 state = State.TIME_OUT;
@@ -91,6 +88,16 @@ namespace Source_Stalker {
             client.Send(ba);
             var reader = new ResponseReader(client);
             return await reader.ReadResponse();
+        }
+
+        private async Task<BaseResponse> SendChallengeQuery(BaseChallengeQuery q) {
+            BaseResponse r = await SendQuery(q);
+            A2S_SERVERQUERY_GETCHALLENGE_Response chr = r as A2S_SERVERQUERY_GETCHALLENGE_Response;
+            if(chr != null) {
+                q.Challenge = chr.Challenge;
+                r = await SendQuery(q);
+            }
+            return r;
         }
 
         private class ResponseReader {
@@ -125,8 +132,8 @@ namespace Source_Stalker {
                     case 0x49: return new A2S_INFO_Response(r);
                     case 0x41: return new A2S_SERVERQUERY_GETCHALLENGE_Response(r);
                     case 0x45: return new A2S_RULES_Response(r);
-
-                    case 0x44://player info request response
+                    case 0x44: return new A2S_PLAYER_Response(r);
+                    
                     case 0x6D://obsolete goldsource info request response
                     case 0x6A://obsolete ping request response
                     default:
@@ -308,15 +315,17 @@ namespace Source_Stalker {
             }
         }
 
-        private class A2S_RULES_Query : BaseQuery {
-            private const byte Header = 0x56;
+        private class BaseChallengeQuery : BaseQuery {
+            private byte Header;
             public uint Challenge;
 
-            public A2S_RULES_Query() {
+            public BaseChallengeQuery(byte Header) {
+                this.Header = Header;
                 Challenge = 0xFFFFFFFF;
             }
 
-            public A2S_RULES_Query(uint challenge) {
+            public BaseChallengeQuery(byte Header, uint challenge) {
+                this.Header = Header;
                 Challenge = challenge;
             }
 
@@ -327,6 +336,13 @@ namespace Source_Stalker {
                 }
             }
         }
+
+        private class A2S_RULES_Query : BaseChallengeQuery {
+            private const byte Header = 0x56;
+            public A2S_RULES_Query() : base(Header) {}
+            public A2S_RULES_Query(uint challenge) : base(Header,challenge) {}
+        }
+
         public class A2S_RULES_Response : BaseResponse {
 
             public Dictionary<string, string> rules;
@@ -339,6 +355,48 @@ namespace Source_Stalker {
                     string key = r.ReadNullTerminatedString();
                     string value = r.ReadNullTerminatedString();
                     rules.Add(key, value);
+                }
+            }
+        }
+
+        private class A2S_PLAYER_Query : BaseChallengeQuery {
+            private const byte Header = 0x55;
+            public A2S_PLAYER_Query() : base(Header) { }
+            public A2S_PLAYER_Query(uint challenge) : base(Header, challenge) { }
+        }
+
+        public class A2S_PLAYER_Response : BaseResponse {
+
+            public Player[] Players;
+
+            public A2S_PLAYER_Response(BinaryReader r) {
+                byte playerCount = r.ReadByte();
+
+                Players = new Player[playerCount];
+
+                for(byte playerIndex=0;playerIndex<playerCount;++playerIndex) {
+                    byte index = r.ReadByte();
+                    string name = r.ReadNullTerminatedString();
+                    int score = r.ReadInt32();
+                    float playtime = r.ReadSingle();
+
+                    Players[playerIndex] = new Player(name, score, playtime);
+                }
+            }
+
+            public class Player {
+                public string Name;
+                public int Score;
+                public float Playtime;
+
+                public Player(string name, int score, float playtime) {
+                    Name = name;
+                    Score = score;
+                    Playtime = playtime;
+                }
+
+                public override string ToString() {
+                    return $"{Name} {Score}";
                 }
             }
         }
