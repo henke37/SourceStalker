@@ -239,6 +239,9 @@ namespace Source_Stalker {
             private const byte HasTags = 0x20;
             private const byte HasLongGameId = 0x01;
 
+            public byte FreePlayerSlots { get => (byte)(MaxPlayerCount - PlayerCount); }
+            public byte RealPlayers { get => (byte)(PlayerCount-BotCount); }
+
             public A2S_INFO_Response(Stream s) {
                 Read(s);
             }
