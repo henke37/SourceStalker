@@ -37,12 +37,14 @@ namespace Source_Stalker {
 
         public State state = State.INVALID;
         private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
-        private const int TIMEOUT_ERR_CODE = 10060;
+        public const int TIMEOUT_ERR_CODE = 10060;
 
         public ServerStatus() {
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
-            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 300);
+            //client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 300);
         }
+
+        public int Timeout { get => client.ReceiveTimeout; set => client.ReceiveTimeout = value; }
 
         public string HostName {
             get => _hostname;
@@ -51,6 +53,8 @@ namespace Source_Stalker {
                 resolveHostname();
             }
         }
+
+        public object Address { get => $"{_hostname}:{port}"; }
 
         private async void resolveHostname() {
             resolvedHost = null;

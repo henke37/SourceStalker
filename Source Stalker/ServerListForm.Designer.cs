@@ -27,13 +27,13 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.serverGrid = new System.Windows.Forms.DataGridView();
             this.Address = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PlayerCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Ping = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.serverGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -68,19 +68,19 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
-            // dataGridView1
+            // serverGrid
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.serverGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.serverGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Address,
             this.Map,
             this.PlayerCount,
             this.Ping});
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 49);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(925, 480);
-            this.dataGridView1.TabIndex = 3;
+            this.serverGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.serverGrid.Location = new System.Drawing.Point(0, 49);
+            this.serverGrid.Name = "serverGrid";
+            this.serverGrid.Size = new System.Drawing.Size(925, 480);
+            this.serverGrid.TabIndex = 3;
             // 
             // Address
             // 
@@ -89,9 +89,10 @@
             // 
             // Map
             // 
-            this.Map.HeaderText = "CurrentMap";
+            this.Map.HeaderText = "Current Map";
             this.Map.Name = "Map";
             this.Map.ReadOnly = true;
+            this.Map.ToolTipText = "The map currently being played";
             // 
             // PlayerCount
             // 
@@ -111,7 +112,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(925, 551);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.serverGrid);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -120,7 +121,7 @@
             this.Text = "Server List";
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.serverGrid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -132,7 +133,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView serverGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn Address;
         private System.Windows.Forms.DataGridViewTextBoxColumn Map;
         private System.Windows.Forms.DataGridViewTextBoxColumn PlayerCount;
