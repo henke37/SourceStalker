@@ -110,6 +110,15 @@ namespace Source_Stalker {
             }
         }
 
+        public bool IsReadyForUpdate {  get { switch(_state) {
+                    case StateEnum.ANSWER_RECEIVED: return true;
+                    case StateEnum.HOSTNAME_RESOLVED: return true;
+                    case StateEnum.TIME_OUT: return true;
+                }
+                return false;
+            }
+        }
+
         private async Task<BaseResponse> SendQuery(BaseQuery q) {
             byte[] ba;
             using(MemoryStream ms = new MemoryStream()) {

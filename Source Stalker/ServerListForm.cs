@@ -97,9 +97,7 @@ namespace Source_Stalker {
             Task[] tasks = new Task[servers.Count];
             var i = 0;
             foreach(var server in servers) {
-                if(server.State == ServerStatus.StateEnum.HOSTNAME_UNRESOLVED) continue;
-                if(server.State == ServerStatus.StateEnum.INVALID) continue;
-                if(server.State == ServerStatus.StateEnum.QUERY_SENT) continue;
+                if(!server.IsReadyForUpdate) continue;
                 tasks[i++]=server.Update();
             }
             await Task.WhenAll(tasks);
