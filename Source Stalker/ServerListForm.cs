@@ -26,37 +26,60 @@ namespace Source_Stalker {
             updateTimer.Elapsed += UpdateTimer_Elapsed;
 
             buildGrid();
+
+            updateTimer.Start();
+            UpdateServerStatuses();
         }
 
         private void buildGrid() {
+            serverGrid.UserAddedRow += ServerGrid_UserAddedRow;
             serverGrid.CellEndEdit += ServerGrid_CellEndEdit;
             foreach(var server in servers) {
+                server.StateChanged += Server_StateChanged;
                 var row = new DataGridViewRow();
                 SetRowForServer(server, row);
                 serverGrid.Rows.Add(row);
             }
         }
 
-        private void ServerGrid_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-            var row = serverGrid.Rows.SharedRow(e.RowIndex);
-            SetRowForServer(row);
+        private async void Server_StateChanged(ServerStatus server) {
+            if(server.State == ServerStatus.StateEnum.HOSTNAME_RESOLVED) {
+                await server.Update();
+            }
+            SetRowForServer(server);
         }
 
-        private void SetRowForServer(DataGridViewRow row) {
-            ServerStatus server = serverForRow(row);
+        private void ServerGrid_UserAddedRow(object sender, DataGridViewRowEventArgs e) {
+            var server = new ServerStatus();
+            server.StateChanged += Server_StateChanged;
+            servers.Insert(e.Row.Index-1, server);
+        }
+
+        private void ServerGrid_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
+            var row = serverGrid.Rows.SharedRow(e.RowIndex);
+            var server = servers[e.RowIndex];
+            server.Address = (string) row.Cells[0].Value;
             SetRowForServer(server, row);
         }
 
-        private ServerStatus serverForRow(DataGridViewRow row) {
-            throw new NotImplementedException();
+        private void SetRowForServer(ServerStatus server) {
+            var index = servers.IndexOf(server);
+            var row = serverGrid.Rows[index];
+            SetRowForServer(server, row);
         }
 
-        private static void SetRowForServer(ServerStatus server, DataGridViewRow row) {
-            if(server.state == ServerStatus.State.TIME_OUT) {
+        private void SetRowForServer(ServerStatus server, DataGridViewRow row) {
+            if(serverGrid.InvokeRequired) {
+                serverGrid.Invoke((MethodInvoker)delegate {
+                    SetRowForServer(server, row);
+                });
+                return;
+            }
+            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 row.SetValues(server.Address, "", "0 (0)/0", $"-{Settings.Default.Timeout}");
             } else if(server.info !=null) {
                 string playerCountString = $"{server.info.PlayerCount} ({server.info.BotCount})/{server.info.MaxPlayerCount}";
-                row.SetValues(server.Address, server.info.Map, playerCountString, server.PingTime);
+                row.SetValues(server.Address, server.info.Map, playerCountString, server.PingTime.TotalMilliseconds);
             } else {
                 row.SetValues(server.Address, "", "0 (0)/0", "N/a");
             }
@@ -70,13 +93,18 @@ namespace Source_Stalker {
             UpdateServerStatuses();
         }
 
-        private void UpdateServerStatuses() {
+        private async void UpdateServerStatuses() {
+            Task[] tasks = new Task[servers.Count];
+            var i = 0;
             foreach(var server in servers) {
-                if(server.state == ServerStatus.State.HOSTNAME_UNRESOLVED) continue;
-                if(server.state == ServerStatus.State.INVALID) continue;
-                if(server.state == ServerStatus.State.QUERY_SENT) continue;
-                server.Update();
+                if(server.State == ServerStatus.StateEnum.HOSTNAME_UNRESOLVED) continue;
+                if(server.State == ServerStatus.StateEnum.INVALID) continue;
+                if(server.State == ServerStatus.StateEnum.QUERY_SENT) continue;
+                tasks[i++]=server.Update();
             }
+            await Task.WhenAll(tasks);
         }
+
+        
     }
 }

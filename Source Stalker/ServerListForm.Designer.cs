@@ -85,14 +85,18 @@
             // Address
             // 
             this.Address.HeaderText = "Address";
+            this.Address.MinimumWidth = 50;
             this.Address.Name = "Address";
+            this.Address.Width = 150;
             // 
             // Map
             // 
             this.Map.HeaderText = "Current Map";
+            this.Map.MinimumWidth = 100;
             this.Map.Name = "Map";
             this.Map.ReadOnly = true;
             this.Map.ToolTipText = "The map currently being played";
+            this.Map.Width = 200;
             // 
             // PlayerCount
             // 

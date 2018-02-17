@@ -26,18 +26,22 @@ namespace Source_Stalker {
 
         public TimeSpan PingTime { get => responseTime - queryTime; }
 
-        public enum State {
+        public enum StateEnum {
             INVALID,
             HOSTNAME_UNRESOLVED,
             HOSTNAME_RESOLVED,
+            HOSTNAME_INVALID,
             QUERY_SENT,
             ANSWER_RECEIVED,
             TIME_OUT
         }
 
-        public State state = State.INVALID;
+        private StateEnum _state = StateEnum.INVALID;
+
+        public event Action<ServerStatus> StateChanged;
+
+
         private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
-        public const int TIMEOUT_ERR_CODE = 10060;
 
         public ServerStatus() {
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
@@ -54,30 +58,55 @@ namespace Source_Stalker {
             }
         }
 
-        public object Address { get => $"{_hostname}:{port}"; }
+        public string Address {
+            get => $"{_hostname}:{port}";
+            set {
+                var parts = value.Split(new[] { ':' });
+                if(parts.Length != 2) throw new ArgumentException("Addresses must have exactly one colon!");
+                port = short.Parse(parts[1]);
+                HostName = parts[0];
+            }
+        }
+
+        internal StateEnum State {
+            get => _state;
+            set {
+                if(_state == value) return;
+                _state = value;
+                if(StateChanged !=null) {
+                    StateChanged.Invoke(this);
+                }
+            }
+        }
 
         private async void resolveHostname() {
             resolvedHost = null;
-            state = State.HOSTNAME_UNRESOLVED;
-            resolvedHost = await Dns.GetHostEntryAsync(_hostname);
-            state = State.HOSTNAME_RESOLVED;
-            client.Connect(resolvedHost.AddressList[0], port);
+            State = StateEnum.HOSTNAME_UNRESOLVED;
+            try {
+                resolvedHost = await Dns.GetHostEntryAsync(_hostname);
+                client.Connect(resolvedHost.AddressList[0], port);
+                State = StateEnum.HOSTNAME_RESOLVED;
+            } catch (SocketException err) {
+                if(err.ErrorCode != (int)SocketError.HostNotFound) throw;
+                State = StateEnum.HOSTNAME_INVALID;
+            }
         }
 
         public async Task Update() {
-            state = State.QUERY_SENT;
+            State = StateEnum.QUERY_SENT;
             queryTime = DateTime.Now;
             try {
                 info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
-                state = State.ANSWER_RECEIVED;
                 responseTime = DateTime.Now;
 
                 rules = (A2S_RULES_Response)await SendChallengeQuery(new A2S_RULES_Query());
                 players = (A2S_PLAYER_Response)await SendChallengeQuery(new A2S_PLAYER_Query());
 
+                State = StateEnum.ANSWER_RECEIVED;
+
             } catch(SocketException err) {
-                if(err.ErrorCode != TIMEOUT_ERR_CODE) throw;
-                state = State.TIME_OUT;
+                if(err.ErrorCode != (int)SocketError.TimedOut) throw;
+                State = StateEnum.TIME_OUT;
             }
         }
 
@@ -244,7 +273,7 @@ namespace Source_Stalker {
             private const byte HasLongGameId = 0x01;
 
             public byte FreePlayerSlots { get => (byte)(MaxPlayerCount - PlayerCount); }
-            public byte RealPlayers { get => (byte)(PlayerCount-BotCount); }
+            public byte RealPlayers { get => (byte)(PlayerCount - BotCount); }
 
             public A2S_INFO_Response(Stream s) {
                 Read(s);
