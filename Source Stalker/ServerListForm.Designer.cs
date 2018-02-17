@@ -24,7 +24,6 @@
         /// </summary>
         private void InitializeComponent() {
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.serverGrid = new System.Windows.Forms.DataGridView();
@@ -32,25 +31,23 @@
             this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PlayerCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Ping = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.updateNowBtn = new System.Windows.Forms.ToolStripButton();
+            this.settingsBtn = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.serverGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
             // 
-            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.updateNowBtn,
+            this.settingsBtn});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(925, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(925, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
             // 
             // statusStrip1
             // 
@@ -77,9 +74,9 @@
             this.PlayerCount,
             this.Ping});
             this.serverGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.serverGrid.Location = new System.Drawing.Point(0, 49);
+            this.serverGrid.Location = new System.Drawing.Point(0, 25);
             this.serverGrid.Name = "serverGrid";
-            this.serverGrid.Size = new System.Drawing.Size(925, 480);
+            this.serverGrid.Size = new System.Drawing.Size(925, 504);
             this.serverGrid.TabIndex = 3;
             // 
             // Address
@@ -110,6 +107,27 @@
             this.Ping.Name = "Ping";
             this.Ping.ReadOnly = true;
             // 
+            // updateNowBtn
+            // 
+            this.updateNowBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.updateNowBtn.Image = global::Source_Stalker.Properties.Resources.updateArrow;
+            this.updateNowBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.updateNowBtn.Name = "updateNowBtn";
+            this.updateNowBtn.Size = new System.Drawing.Size(23, 22);
+            this.updateNowBtn.Text = "Update";
+            this.updateNowBtn.ToolTipText = "Update all servers now!";
+            this.updateNowBtn.Click += new System.EventHandler(this.updateNowBtn_Click);
+            // 
+            // settingsBtn
+            // 
+            this.settingsBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.settingsBtn.Image = global::Source_Stalker.Properties.Resources.settings_cog;
+            this.settingsBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.settingsBtn.Name = "settingsBtn";
+            this.settingsBtn.Size = new System.Drawing.Size(23, 22);
+            this.settingsBtn.Text = "Settings";
+            this.settingsBtn.ToolTipText = "Open Settings";
+            // 
             // ServerListForm
             // 
             this.AllowDrop = true;
@@ -119,10 +137,10 @@
             this.Controls.Add(this.serverGrid);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
             this.Name = "ServerListForm";
             this.Text = "Server List";
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.serverGrid)).EndInit();
@@ -134,7 +152,6 @@
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.DataGridView serverGrid;
@@ -142,6 +159,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Map;
         private System.Windows.Forms.DataGridViewTextBoxColumn PlayerCount;
         private System.Windows.Forms.DataGridViewTextBoxColumn Ping;
+        private System.Windows.Forms.ToolStripButton updateNowBtn;
+        private System.Windows.Forms.ToolStripButton settingsBtn;
     }
 }
 

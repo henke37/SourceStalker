@@ -74,11 +74,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="StalkerResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>StalkerResources.resx</DependentUpon>
-    </Compile>
     <Compile Include="TestForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,13 +88,10 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="ServerListForm.resx">
       <DependentUpon>ServerListForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="StalkerResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>StalkerResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="TestForm.resx">
       <DependentUpon>TestForm.cs</DependentUpon>
@@ -129,6 +121,10 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Credits.txt" />
+    <None Include="Resources\settings-cog.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

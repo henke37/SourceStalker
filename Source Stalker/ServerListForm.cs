@@ -103,6 +103,8 @@ namespace Source_Stalker {
             await Task.WhenAll(tasks);
         }
 
-        
+        private void updateNowBtn_Click(object sender, EventArgs e) {
+            UpdateServerStatuses();
+        }
     }
 }
