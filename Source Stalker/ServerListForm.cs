@@ -106,5 +106,10 @@ namespace Source_Stalker {
         private void updateNowBtn_Click(object sender, EventArgs e) {
             UpdateServerStatuses();
         }
+
+        private void settingsBtn_Click(object sender, EventArgs e) {
+            var sf = new SettingsForm();
+            sf.Show(this);
+        }
     }
 }

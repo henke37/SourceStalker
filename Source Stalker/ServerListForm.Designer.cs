@@ -24,6 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.updateNowBtn = new System.Windows.Forms.ToolStripButton();
+            this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.serverGrid = new System.Windows.Forms.DataGridView();
@@ -31,8 +33,6 @@
             this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PlayerCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Ping = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.updateNowBtn = new System.Windows.Forms.ToolStripButton();
-            this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.serverGrid)).BeginInit();
@@ -48,6 +48,28 @@
             this.toolStrip1.Size = new System.Drawing.Size(925, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // updateNowBtn
+            // 
+            this.updateNowBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.updateNowBtn.Image = global::Source_Stalker.Properties.Resources.updateArrow;
+            this.updateNowBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.updateNowBtn.Name = "updateNowBtn";
+            this.updateNowBtn.Size = new System.Drawing.Size(23, 22);
+            this.updateNowBtn.Text = "Update";
+            this.updateNowBtn.ToolTipText = "Update all servers now!";
+            this.updateNowBtn.Click += new System.EventHandler(this.updateNowBtn_Click);
+            // 
+            // settingsBtn
+            // 
+            this.settingsBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.settingsBtn.Image = global::Source_Stalker.Properties.Resources.settings_cog;
+            this.settingsBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.settingsBtn.Name = "settingsBtn";
+            this.settingsBtn.Size = new System.Drawing.Size(23, 22);
+            this.settingsBtn.Text = "Settings";
+            this.settingsBtn.ToolTipText = "Open Settings";
+            this.settingsBtn.Click += new System.EventHandler(this.settingsBtn_Click);
             // 
             // statusStrip1
             // 
@@ -106,27 +128,6 @@
             this.Ping.HeaderText = "Ping";
             this.Ping.Name = "Ping";
             this.Ping.ReadOnly = true;
-            // 
-            // updateNowBtn
-            // 
-            this.updateNowBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.updateNowBtn.Image = global::Source_Stalker.Properties.Resources.updateArrow;
-            this.updateNowBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.updateNowBtn.Name = "updateNowBtn";
-            this.updateNowBtn.Size = new System.Drawing.Size(23, 22);
-            this.updateNowBtn.Text = "Update";
-            this.updateNowBtn.ToolTipText = "Update all servers now!";
-            this.updateNowBtn.Click += new System.EventHandler(this.updateNowBtn_Click);
-            // 
-            // settingsBtn
-            // 
-            this.settingsBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.settingsBtn.Image = global::Source_Stalker.Properties.Resources.settings_cog;
-            this.settingsBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.settingsBtn.Name = "settingsBtn";
-            this.settingsBtn.Size = new System.Drawing.Size(23, 22);
-            this.settingsBtn.Text = "Settings";
-            this.settingsBtn.ToolTipText = "Open Settings";
             // 
             // ServerListForm
             // 
