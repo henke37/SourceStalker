@@ -52,6 +52,7 @@ namespace Source_Stalker {
             CheckDNSSuccess(server);
             UpdateStatusBarWithServerStatus(server);
             SetRowForServer(server);
+            ServerResourceGatherer.Gather(server);
         }
 
         private void UpdateStatusBarWithServerStatus(ServerStatus server) {
