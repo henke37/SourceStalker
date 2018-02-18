@@ -27,7 +27,8 @@
             this.updateNowBtn = new System.Windows.Forms.ToolStripButton();
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pendingStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.timedoutStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.serverGrid = new System.Windows.Forms.DataGridView();
             this.Address = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -74,18 +75,25 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.pendingStatus,
+            this.timedoutStatus});
             this.statusStrip1.Location = new System.Drawing.Point(0, 529);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(925, 22);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // pendingStatus
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            this.pendingStatus.Name = "pendingStatus";
+            this.pendingStatus.Size = new System.Drawing.Size(99, 17);
+            this.pendingStatus.Text = "0 servers pending";
+            // 
+            // timedoutStatus
+            // 
+            this.timedoutStatus.Name = "timedoutStatus";
+            this.timedoutStatus.Size = new System.Drawing.Size(107, 17);
+            this.timedoutStatus.Text = "0 servers timed out";
             // 
             // serverGrid
             // 
@@ -100,6 +108,7 @@
             this.serverGrid.Name = "serverGrid";
             this.serverGrid.Size = new System.Drawing.Size(925, 504);
             this.serverGrid.TabIndex = 3;
+            this.serverGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.serverGrid_CellDoubleClick);
             // 
             // Address
             // 
@@ -154,7 +163,7 @@
 
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel pendingStatus;
         private System.Windows.Forms.DataGridView serverGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn Address;
         private System.Windows.Forms.DataGridViewTextBoxColumn Map;
@@ -162,6 +171,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Ping;
         private System.Windows.Forms.ToolStripButton updateNowBtn;
         private System.Windows.Forms.ToolStripButton settingsBtn;
+        private System.Windows.Forms.ToolStripStatusLabel timedoutStatus;
     }
 }
 

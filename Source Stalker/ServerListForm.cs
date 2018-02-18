@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -15,9 +16,14 @@ namespace Source_Stalker {
         private List<ServerStatus> servers;
 
         private System.Timers.Timer updateTimer;
+        private int pendingUpdateCount;
+        private int timedOutCount;
 
         public ServerListForm() {
             InitializeComponent();
+
+            pendingUpdateCount = 0;
+            timedOutCount = 0;
 
             Settings.Default.SettingChanging += SettingChanging;
 
@@ -35,31 +41,70 @@ namespace Source_Stalker {
             serverGrid.UserAddedRow += ServerGrid_UserAddedRow;
             serverGrid.CellEndEdit += ServerGrid_CellEndEdit;
             foreach(var server in servers) {
-                server.StateChanged += Server_StateChanged;
+                SetServerListeners(server);
                 var row = new DataGridViewRow();
                 SetRowForServer(server, row);
                 serverGrid.Rows.Add(row);
             }
         }
 
-        private async void Server_StateChanged(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.HOSTNAME_RESOLVED) {
-                await server.Update();
-            }
+        private void Server_StateChanged(ServerStatus server) {
+            CheckDNSSuccess(server);
+            UpdateStatusBarWithServerStatus(server);
             SetRowForServer(server);
+        }
+
+        private void UpdateStatusBarWithServerStatus(ServerStatus server) {
+            if(server.State == ServerStatus.StateEnum.ANSWER_RECEIVED || server.State == ServerStatus.StateEnum.TIME_OUT) {
+                pendingUpdateCount--;
+            }
+            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
+                timedOutCount++;
+            }
+            UpdateStatusBar();
+        }
+
+        private async void CheckDNSSuccess(ServerStatus server) {
+            if(server.State == ServerStatus.StateEnum.HOSTNAME_RESOLVED) {
+                await updateServer(server);
+            }
+        }
+
+        private void UpdateStatusBar() {
+            if(InvokeRequired) {
+                Invoke((MethodInvoker)UpdateStatusBar);
+                return;
+            }
+            if(timedOutCount == 1) {
+                timedoutStatus.Text = $"1 server timed out";
+            } else { 
+                timedoutStatus.Text = $"{timedOutCount} servers timed out";
+            }
+
+            if(pendingUpdateCount==1) {
+                pendingStatus.Text = "1 server pending";
+            } else {
+                pendingStatus.Text = $"{pendingUpdateCount} servers pending";
+            }
         }
 
         private void ServerGrid_UserAddedRow(object sender, DataGridViewRowEventArgs e) {
             var server = new ServerStatus();
+            SetServerListeners(server);
+            servers.Insert(e.Row.Index - 1, server);
+        }
+
+        private void SetServerListeners(ServerStatus server) {
             server.StateChanged += Server_StateChanged;
-            servers.Insert(e.Row.Index-1, server);
         }
 
         private void ServerGrid_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
             var row = serverGrid.Rows.SharedRow(e.RowIndex);
             var server = servers[e.RowIndex];
-            server.Address = (string) row.Cells[0].Value;
-            SetRowForServer(server, row);
+            try {
+                server.Address = (string)row.Cells[0].Value;
+                SetRowForServer(server, row);
+            } catch(ServerStatus.BadAddressException) { }
         }
 
         private void SetRowForServer(ServerStatus server) {
@@ -94,13 +139,22 @@ namespace Source_Stalker {
         }
 
         private async void UpdateServerStatuses() {
-            Task[] tasks = new Task[servers.Count];
-            var i = 0;
+            List<Task> tasks = new List<Task>();
             foreach(var server in servers) {
                 if(!server.IsReadyForUpdate) continue;
-                tasks[i++]=server.Update();
+                tasks.Add(updateServer(server));
             }
             await Task.WhenAll(tasks);
+        }
+
+        private Task updateServer(ServerStatus server) {
+            if(server.State==ServerStatus.StateEnum.TIME_OUT) {
+                timedOutCount--;
+            }
+
+            pendingUpdateCount++;
+            UpdateStatusBar();
+            return server.Update();
         }
 
         private void updateNowBtn_Click(object sender, EventArgs e) {
@@ -110,6 +164,13 @@ namespace Source_Stalker {
         private void settingsBtn_Click(object sender, EventArgs e) {
             var sf = new SettingsForm();
             sf.Show(this);
+        }
+
+        private void serverGrid_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
+            if(serverGrid.NewRowIndex == e.RowIndex) return;
+            var server = servers[e.RowIndex];
+            string url = $"steam://connect/{server.Address}";
+            Process.Start(url);
         }
     }
 }
