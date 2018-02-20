@@ -59,7 +59,10 @@ namespace Source_Stalker {
         }
 
         public string Address {
-            get => $"{_hostname}:{port}";
+            get {
+                if(_hostname == null) return null;
+                return $"{_hostname}:{port}";
+            }
             set {
                 var parts = value.Split(new[] { ':' });
                 if(parts.Length != 2) throw new BadAddressException( "Addresses must have exactly one colon!");

@@ -1,6 +1,7 @@
 ﻿using Source_Stalker.Properties;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -26,25 +27,29 @@ namespace Source_Stalker {
             timedOutCount = 0;
 
             Settings.Default.SettingChanging += SettingChanging;
+            
+            loadStoredServers();
 
-            servers = new List<ServerStatus>();
             updateTimer = new System.Timers.Timer(Settings.Default.UpdatePeriod);
             updateTimer.Elapsed += UpdateTimer_Elapsed;
-
-            buildGrid();
 
             updateTimer.Start();
             UpdateServerStatuses();
         }
 
-        private void buildGrid() {
-            serverGrid.UserAddedRow += ServerGrid_UserAddedRow;
-            serverGrid.CellEndEdit += ServerGrid_CellEndEdit;
-            foreach(var server in servers) {
-                SetServerListeners(server);
+        private void loadStoredServers() {
+            servers = new List<ServerStatus>();
+
+            foreach(var servAddr in Settings.Default.Servers) {
+                var server = new ServerStatus();
+                servers.Add(server);
+
                 var row = new DataGridViewRow();
-                SetRowForServer(server, row);
                 serverGrid.Rows.Add(row);
+
+                SetServerListeners(server);
+
+                server.Address = servAddr;
             }
         }
 
@@ -94,17 +99,34 @@ namespace Source_Stalker {
             servers.Insert(e.Row.Index - 1, server);
         }
 
+        private void serverGrid_UserDeletedRow(object sender, DataGridViewRowEventArgs e) {
+            servers.RemoveAt(e.Row.Index);
+            saveServerList();
+        }
+
+        private void saveServerList() {
+            var list = new StringCollection();
+            foreach(var server in servers) {
+                if(server.Address == null) continue;
+                list.Add(server.Address);
+            }
+            Settings.Default.Servers = list;
+            Settings.Default.Save();
+        }
+
         private void SetServerListeners(ServerStatus server) {
             server.StateChanged += Server_StateChanged;
         }
 
         private void ServerGrid_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-            var row = serverGrid.Rows.SharedRow(e.RowIndex);
+            var row = serverGrid.Rows[e.RowIndex];
             var server = servers[e.RowIndex];
             try {
                 server.Address = (string)row.Cells[0].Value;
                 SetRowForServer(server, row);
             } catch(ServerStatus.BadAddressException) { }
+
+            saveServerList();
         }
 
         private void SetRowForServer(ServerStatus server) {
@@ -120,7 +142,9 @@ namespace Source_Stalker {
                 });
                 return;
             }
-            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
+            if(server.State == ServerStatus.StateEnum.HOSTNAME_INVALID) {
+                row.SetValues(server.Address, "", "0 (0)/0", "Invalid Host");
+            } else if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 row.SetValues(server.Address, "", "0 (0)/0", $"-{Settings.Default.Timeout}");
             } else if(server.info !=null) {
                 string playerCountString = $"{server.info.PlayerCount} ({server.info.BotCount})/{server.info.MaxPlayerCount}";
@@ -172,5 +196,7 @@ namespace Source_Stalker {
             string url = $"steam://connect/{server.Address}";
             Process.Start(url);
         }
+
+        
     }
 }

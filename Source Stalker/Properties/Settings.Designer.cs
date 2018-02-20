@@ -46,5 +46,16 @@ namespace Source_Stalker.Properties {
                 this["UpdatePeriod"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection Servers {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Servers"]));
+            }
+            set {
+                this["Servers"] = value;
+            }
+        }
     }
 }
