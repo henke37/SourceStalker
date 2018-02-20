@@ -27,7 +27,7 @@ namespace Source_Stalker {
             timedOutCount = 0;
 
             Settings.Default.SettingChanging += SettingChanging;
-            
+
             loadStoredServers();
 
             updateTimer = new System.Timers.Timer(Settings.Default.UpdatePeriod);
@@ -42,6 +42,7 @@ namespace Source_Stalker {
 
             foreach(var servAddr in Settings.Default.Servers) {
                 var server = new ServerStatus();
+                server.Timeout = Settings.Default.Timeout;
                 servers.Add(server);
 
                 var row = new DataGridViewRow();
@@ -82,11 +83,11 @@ namespace Source_Stalker {
             }
             if(timedOutCount == 1) {
                 timedoutStatus.Text = $"1 server timed out";
-            } else { 
+            } else {
                 timedoutStatus.Text = $"{timedOutCount} servers timed out";
             }
 
-            if(pendingUpdateCount==1) {
+            if(pendingUpdateCount == 1) {
                 pendingStatus.Text = "1 server pending";
             } else {
                 pendingStatus.Text = $"{pendingUpdateCount} servers pending";
@@ -95,6 +96,7 @@ namespace Source_Stalker {
 
         private void ServerGrid_UserAddedRow(object sender, DataGridViewRowEventArgs e) {
             var server = new ServerStatus();
+            server.Timeout = Settings.Default.Timeout;
             SetServerListeners(server);
             servers.Insert(e.Row.Index - 1, server);
         }
@@ -146,7 +148,9 @@ namespace Source_Stalker {
                 row.SetValues(server.Address, "", "0 (0)/0", "Invalid Host");
             } else if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 row.SetValues(server.Address, "", "0 (0)/0", $"-{Settings.Default.Timeout}");
-            } else if(server.info !=null) {
+            } else if(server.State == ServerStatus.StateEnum.QUERY_SENT) {
+                row.SetValues(server.Address, "", "0 (0)/0", "Pending");
+            } else if(server.info != null) {
                 string playerCountString = $"{server.info.PlayerCount} ({server.info.BotCount})/{server.info.MaxPlayerCount}";
                 row.SetValues(server.Address, server.info.Map, playerCountString, server.PingTime.TotalMilliseconds);
             } else {
@@ -156,6 +160,10 @@ namespace Source_Stalker {
 
         private void SettingChanging(object sender, System.Configuration.SettingChangingEventArgs e) {
             updateTimer.Interval = Settings.Default.UpdatePeriod;
+
+            foreach(var server in servers) {
+                server.Timeout = Settings.Default.Timeout;
+            }
         }
 
         private void UpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -172,7 +180,7 @@ namespace Source_Stalker {
         }
 
         private Task updateServer(ServerStatus server) {
-            if(server.State==ServerStatus.StateEnum.TIME_OUT) {
+            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 timedOutCount--;
             }
 
@@ -197,6 +205,6 @@ namespace Source_Stalker {
             Process.Start(url);
         }
 
-        
+
     }
 }
