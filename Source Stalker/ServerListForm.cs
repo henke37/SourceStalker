@@ -148,6 +148,8 @@ namespace Source_Stalker {
                 row.SetValues(server.Address, "", "0 (0)/0", "Invalid Host");
             } else if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 row.SetValues(server.Address, "", "0 (0)/0", $"-{Settings.Default.Timeout}");
+            } else if(server.State == ServerStatus.StateEnum.HOSTNAME_UNRESOLVED) {
+                row.SetValues(server.Address, "", "0 (0)/0", "Pending DNS");
             } else if(server.State == ServerStatus.StateEnum.QUERY_SENT) {
                 row.SetValues(server.Address, "", "0 (0)/0", "Pending");
             } else if(server.info != null) {
