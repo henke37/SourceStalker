@@ -109,6 +109,9 @@
             this.serverGrid.Size = new System.Drawing.Size(925, 504);
             this.serverGrid.TabIndex = 3;
             this.serverGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.serverGrid_CellDoubleClick);
+            this.serverGrid.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.ServerGrid_CellEndEdit);
+            this.serverGrid.UserAddedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.ServerGrid_UserAddedRow);
+            this.serverGrid.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.serverGrid_UserDeletedRow);
             // 
             // Address
             // 
