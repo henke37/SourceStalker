@@ -42,10 +42,10 @@ namespace Source_Stalker {
 
 
         private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+        private const short DefaultPort = 27015;
 
         public ServerStatus() {
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
-            //client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 300);
         }
 
         public int Timeout { get => client.ReceiveTimeout; set => client.ReceiveTimeout = value; }
@@ -59,12 +59,19 @@ namespace Source_Stalker {
         }
 
         public string Address {
-            get => $"{_hostname}:{port}";
+            get {
+                if(_hostname == null) return null;
+                return $"{_hostname}:{port}";
+            }
             set {
                 var parts = value.Split(new[] { ':' });
-                if(parts.Length != 2) throw new BadAddressException( "Addresses must have exactly one colon!");
-                port = short.Parse(parts[1]);
-                HostName = parts[0];
+                if(parts.Length != 2) {
+                    port = DefaultPort;
+                    HostName = value;
+                } else {
+                    port = short.Parse(parts[1]);
+                    HostName = parts[0];
+                }
             }
         }
 
@@ -78,7 +85,7 @@ namespace Source_Stalker {
             set {
                 if(_state == value) return;
                 _state = value;
-                if(StateChanged !=null) {
+                if(StateChanged != null) {
                     StateChanged.Invoke(this);
                 }
             }
@@ -91,7 +98,7 @@ namespace Source_Stalker {
                 resolvedHost = await Dns.GetHostEntryAsync(_hostname);
                 client.Connect(resolvedHost.AddressList[0], port);
                 State = StateEnum.HOSTNAME_RESOLVED;
-            } catch (SocketException err) {
+            } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.HostNotFound) throw;
                 State = StateEnum.HOSTNAME_INVALID;
             }
@@ -115,7 +122,9 @@ namespace Source_Stalker {
             }
         }
 
-        public bool IsReadyForUpdate {  get { switch(_state) {
+        public bool IsReadyForUpdate {
+            get {
+                switch(_state) {
                     case StateEnum.ANSWER_RECEIVED: return true;
                     case StateEnum.HOSTNAME_RESOLVED: return true;
                     case StateEnum.TIME_OUT: return true;
