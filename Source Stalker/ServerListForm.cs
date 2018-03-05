@@ -11,62 +11,29 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Source_Stalker {
-    public partial class ServerListForm : Form {
+    internal partial class ServerListForm : Form {
 
-        private List<ServerStatus> servers;
+        private ServerManager manager;
 
-        private System.Timers.Timer updateTimer;
-        private int pendingUpdateCount;
-        private int timedOutCount;
-
-        public ServerListForm() {
+        public ServerListForm(ServerManager manager) {
             InitializeComponent();
+            this.manager = manager;
 
-            pendingUpdateCount = 0;
-            timedOutCount = 0;
 
-            Settings.Default.SettingChanging += SettingChanging;
+            manager.ServerStateChanged += Manager_ServerStateChanged;
 
-            servers = new List<ServerStatus>();
-            updateTimer = new System.Timers.Timer(Settings.Default.UpdatePeriod);
-            updateTimer.Elapsed += UpdateTimer_Elapsed;
-
-            buildGrid();
-
-            updateTimer.Start();
-            UpdateServerStatuses();
+            buildGridRows();
         }
 
-        private void buildGrid() {
-            serverGrid.UserAddedRow += ServerGrid_UserAddedRow;
-            serverGrid.CellEndEdit += ServerGrid_CellEndEdit;
-            foreach(var server in servers) {
-                SetServerListeners(server);
-                var row = new DataGridViewRow();
-                SetRowForServer(server, row);
-                serverGrid.Rows.Add(row);
-            }
-        }
-
-        private void Server_StateChanged(ServerStatus server) {
-            CheckDNSSuccess(server);
-            UpdateStatusBarWithServerStatus(server);
+        private void Manager_ServerStateChanged(ServerStatus server) {
+            UpdateStatusBar();
             SetRowForServer(server);
         }
 
-        private void UpdateStatusBarWithServerStatus(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.ANSWER_RECEIVED || server.State == ServerStatus.StateEnum.TIME_OUT) {
-                pendingUpdateCount--;
-            }
-            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
-                timedOutCount++;
-            }
-            UpdateStatusBar();
-        }
-
-        private async void CheckDNSSuccess(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.HOSTNAME_RESOLVED) {
-                await updateServer(server);
+        private void buildGridRows() {
+            foreach(var server in manager) {
+                serverGrid.Rows.Add();
+                SetRowForServer(server);
             }
         }
 
@@ -75,40 +42,36 @@ namespace Source_Stalker {
                 Invoke((MethodInvoker)UpdateStatusBar);
                 return;
             }
-            if(timedOutCount == 1) {
+            if(manager.TimedOutCount == 1) {
                 timedoutStatus.Text = $"1 server timed out";
-            } else { 
-                timedoutStatus.Text = $"{timedOutCount} servers timed out";
+            } else {
+                timedoutStatus.Text = $"{manager.TimedOutCount} servers timed out";
             }
 
-            if(pendingUpdateCount==1) {
+            if(manager.PendingUpdateCount == 1) {
                 pendingStatus.Text = "1 server pending";
             } else {
-                pendingStatus.Text = $"{pendingUpdateCount} servers pending";
+                pendingStatus.Text = $"{manager.PendingUpdateCount} servers pending";
             }
         }
 
         private void ServerGrid_UserAddedRow(object sender, DataGridViewRowEventArgs e) {
-            var server = new ServerStatus();
-            SetServerListeners(server);
-            servers.Insert(e.Row.Index - 1, server);
+            manager.AddServer(e.Row.Index - 1);
         }
 
-        private void SetServerListeners(ServerStatus server) {
-            server.StateChanged += Server_StateChanged;
+        private void serverGrid_UserDeletedRow(object sender, DataGridViewRowEventArgs e) {
+            manager.RemoveServer(e.Row.Index);
         }
 
         private void ServerGrid_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-            var row = serverGrid.Rows.SharedRow(e.RowIndex);
-            var server = servers[e.RowIndex];
             try {
-                server.Address = (string)row.Cells[0].Value;
-                SetRowForServer(server, row);
+                var row = serverGrid.Rows[e.RowIndex];
+                manager.SetServerAddress(e.RowIndex, (string)row.Cells[0].Value);                
             } catch(ServerStatus.BadAddressException) { }
         }
 
         private void SetRowForServer(ServerStatus server) {
-            var index = servers.IndexOf(server);
+            var index = manager.IndexOf(server);
             var row = serverGrid.Rows[index];
             SetRowForServer(server, row);
         }
@@ -130,35 +93,8 @@ namespace Source_Stalker {
             }
         }
 
-        private void SettingChanging(object sender, System.Configuration.SettingChangingEventArgs e) {
-            updateTimer.Interval = Settings.Default.UpdatePeriod;
-        }
-
-        private void UpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            UpdateServerStatuses();
-        }
-
-        private async void UpdateServerStatuses() {
-            List<Task> tasks = new List<Task>();
-            foreach(var server in servers) {
-                if(!server.IsReadyForUpdate) continue;
-                tasks.Add(updateServer(server));
-            }
-            await Task.WhenAll(tasks);
-        }
-
-        private Task updateServer(ServerStatus server) {
-            if(server.State==ServerStatus.StateEnum.TIME_OUT) {
-                timedOutCount--;
-            }
-
-            pendingUpdateCount++;
-            UpdateStatusBar();
-            return server.Update();
-        }
-
         private void updateNowBtn_Click(object sender, EventArgs e) {
-            UpdateServerStatuses();
+            manager.UpdateServerStatuses();
         }
 
         private void settingsBtn_Click(object sender, EventArgs e) {
@@ -168,7 +104,7 @@ namespace Source_Stalker {
 
         private void serverGrid_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
             if(serverGrid.NewRowIndex == e.RowIndex) return;
-            var server = servers[e.RowIndex];
+            var server = manager[e.RowIndex];
             string url = $"steam://connect/{server.Address}";
             Process.Start(url);
         }
