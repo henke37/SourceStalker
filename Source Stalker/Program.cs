@@ -28,13 +28,24 @@ namespace Source_Stalker {
             public AppContext() {
                 manager = new ServerManager();
 
-                notifyIcon =new NotifyIcon() {
-                    ContextMenuStrip = new ContextMenuStrip(),
+                notifyIcon = new NotifyIcon() {
+                    ContextMenuStrip = makeContextMenu(),
                     Text = "Source Server Stalker",
                     Icon = Resources.NotificationIcon,
                     Visible = true
                 };
                 notifyIcon.MouseClick += NotifyIcon_MouseClick;
+            }
+
+            private ContextMenuStrip makeContextMenu() {
+                ContextMenuStrip menu = new ContextMenuStrip();
+                ToolStripItem exitItem=menu.Items.Add("Exit");
+                exitItem.Click += ExitItem_Click;
+                return menu;
+            }
+
+            private void ExitItem_Click(object sender, EventArgs e) {
+                ExitThread();
             }
 
             private void NotifyIcon_MouseClick(object sender, MouseEventArgs e) {
