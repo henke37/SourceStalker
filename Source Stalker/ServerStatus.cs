@@ -93,9 +93,20 @@ namespace Source_Stalker {
 
         private async void resolveHostname() {
             resolvedHost = null;
+
+			if(IPAddress.TryParse(_hostname,out IPAddress addr)) {
+				client.Connect(addr, port);
+				State = StateEnum.HOSTNAME_RESOLVED;
+				return;
+			}
+
             State = StateEnum.HOSTNAME_UNRESOLVED;
             try {
                 resolvedHost = await Dns.GetHostEntryAsync(_hostname);
+				if(resolvedHost.AddressList.Length<1) {
+					State = StateEnum.HOSTNAME_INVALID;
+					return;
+				}
                 client.Connect(resolvedHost.AddressList[0], port);
                 State = StateEnum.HOSTNAME_RESOLVED;
             } catch(SocketException err) {
@@ -111,8 +122,8 @@ namespace Source_Stalker {
                 info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
                 responseTime = DateTime.Now;
 
-                rules = (A2S_RULES_Response)await SendChallengeQuery(new A2S_RULES_Query());
-                players = (A2S_PLAYER_Response)await SendChallengeQuery(new A2S_PLAYER_Query());
+                //rules = (A2S_RULES_Response)await SendChallengeQuery(new A2S_RULES_Query());
+                //players = (A2S_PLAYER_Response)await SendChallengeQuery(new A2S_PLAYER_Query());
 
                 State = StateEnum.ANSWER_RECEIVED;
 
