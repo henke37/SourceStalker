@@ -145,19 +145,23 @@ namespace Source_Stalker {
         }
 
         private async Task<BaseResponse> SendQuery(BaseQuery q) {
-            byte[] ba;
-            using(MemoryStream ms = new MemoryStream()) {
-                ms.Write(QueryPrefix, 0, QueryPrefix.Length);
-                q.BuildQuery(ms);
-                ba = ms.ToArray();
-            }
+			byte[] ba;
+			using(MemoryStream ms = new MemoryStream()) {
+				ms.Write(QueryPrefix, 0, QueryPrefix.Length);
+				q.BuildQuery(ms);
+				ba = ms.ToArray();
+			}
 
-            client.Send(ba);
-            var reader = new ResponseReader(client);
-            return await reader.ReadResponse();
-        }
+			client.Send(ba);
+			return await AwaitResponse();
+		}
 
-        private async Task<BaseResponse> SendChallengeQuery(BaseChallengeQuery q) {
+		private async Task<BaseResponse> AwaitResponse() {
+			var reader = new ResponseReader(client);
+			return await reader.ReadResponse();
+		}
+
+		private async Task<BaseResponse> SendChallengeQuery(BaseChallengeQuery q) {
             BaseResponse r = await SendQuery(q);
             A2S_SERVERQUERY_GETCHALLENGE_Response chr = r as A2S_SERVERQUERY_GETCHALLENGE_Response;
             if(chr != null) {
