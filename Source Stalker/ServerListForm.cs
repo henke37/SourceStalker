@@ -114,5 +114,9 @@ namespace Source_Stalker {
             string url = $"steam://connect/{server.Address}";
             Process.Start(url);
         }
-    }
+
+		private void ServerListForm_FormClosed(object sender, FormClosedEventArgs e) {
+			manager.ServerStateChanged -= Manager_ServerStateChanged;
+		}
+	}
 }
