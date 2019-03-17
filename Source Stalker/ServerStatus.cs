@@ -173,7 +173,7 @@ namespace Source_Stalker {
 					break;
 			}
 
-			if(!(waitingForInfo || waitingForRules)) {
+			if(!(waitingForInfo || waitingForRules || waitingForPlayers)) {
 				State = StateEnum.ANSWER_RECEIVED;
 			}
 		}
