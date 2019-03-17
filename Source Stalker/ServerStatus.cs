@@ -18,13 +18,18 @@ namespace Source_Stalker {
 
         private Socket client;
 
-        public A2S_INFO_Response info;
+		private bool waitingForInfo;
+		private bool waitingForPlayers;
+		private bool waitingForRules;
+
+		public A2S_INFO_Response info;
         public A2S_RULES_Response rules;
         public A2S_PLAYER_Response players;
-        public DateTime queryTime;
+
+		public DateTime queryTime;
         private DateTime responseTime;
 
-        public TimeSpan PingTime { get => responseTime - queryTime; }
+		public TimeSpan PingTime { get => responseTime - queryTime; }
 
         public enum StateEnum {
             INVALID,
@@ -117,15 +122,22 @@ namespace Source_Stalker {
 
         public async Task Update() {
             State = StateEnum.QUERY_SENT;
-            queryTime = DateTime.Now;
             try {
-                info = (A2S_INFO_Response)await SendQuery(new A2S_INFO_Request());
-                responseTime = DateTime.Now;
 
-                //rules = (A2S_RULES_Response)await SendChallengeQuery(new A2S_RULES_Query());
-                //players = (A2S_PLAYER_Response)await SendChallengeQuery(new A2S_PLAYER_Query());
+				queryTime = DateTime.Now;
+				waitingForInfo = true;
+                SendQuery(new A2S_INFO_Request());
 
-                State = StateEnum.ANSWER_RECEIVED;
+				waitingForRules = true;
+                SendQuery(new A2S_RULES_Query());
+
+				waitingForPlayers = true;
+				SendQuery(new A2S_PLAYER_Query());
+
+                while(State==StateEnum.QUERY_SENT) {
+					var response = await AwaitResponse();
+					ResponseReceived(response);
+				}
 
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.TimedOut) throw;
@@ -133,7 +145,41 @@ namespace Source_Stalker {
             }
         }
 
-        public bool IsReadyForUpdate {
+		private void ResponseReceived(BaseResponse response) {
+			switch(response) {
+				case A2S_INFO_Response infoR:
+					info = infoR;
+					responseTime = DateTime.Now;
+					waitingForInfo = false;
+					break;
+
+				case A2S_RULES_Response rulesR:
+					rules = rulesR;
+					waitingForRules = false;
+					break;
+
+				case A2S_PLAYER_Response playersR:
+					players = playersR;
+					waitingForPlayers = false;
+					break;
+
+				case A2S_SERVERQUERY_GETCHALLENGE_Response challenge:
+					if(waitingForRules) {
+						SendQuery(new A2S_RULES_Query(challenge.Challenge));
+					} else if(waitingForPlayers) {
+						SendQuery(new A2S_PLAYER_Query(challenge.Challenge));
+					}
+
+					break;
+			}
+
+			if(!(waitingForInfo || waitingForRules)) {
+				State = StateEnum.ANSWER_RECEIVED;
+			}
+		}
+
+
+		public bool IsReadyForUpdate {
             get {
                 switch(_state) {
                     case StateEnum.ANSWER_RECEIVED: return true;
@@ -144,7 +190,7 @@ namespace Source_Stalker {
             }
         }
 
-        private async Task<BaseResponse> SendQuery(BaseQuery q) {
+        private void SendQuery(BaseQuery q) {
 			byte[] ba;
 			using(MemoryStream ms = new MemoryStream()) {
 				ms.Write(QueryPrefix, 0, QueryPrefix.Length);
@@ -153,23 +199,12 @@ namespace Source_Stalker {
 			}
 
 			client.Send(ba);
-			return await AwaitResponse();
 		}
 
 		private async Task<BaseResponse> AwaitResponse() {
 			var reader = new ResponseReader(client);
 			return await reader.ReadResponse();
 		}
-
-		private async Task<BaseResponse> SendChallengeQuery(BaseChallengeQuery q) {
-            BaseResponse r = await SendQuery(q);
-            A2S_SERVERQUERY_GETCHALLENGE_Response chr = r as A2S_SERVERQUERY_GETCHALLENGE_Response;
-            if(chr != null) {
-                q.Challenge = chr.Challenge;
-                r = await SendQuery(q);
-            }
-            return r;
-        }
 
         private class ResponseReader {
             private byte[][] responses;
