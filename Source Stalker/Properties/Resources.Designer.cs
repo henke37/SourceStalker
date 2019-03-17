@@ -61,12 +61,66 @@ namespace Source_Stalker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to E&amp;xit.
+        /// </summary>
+        internal static string IconContextMenu_Exit {
+            get {
+                return ResourceManager.GetString("IconContextMenu_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &amp;Update.
+        /// </summary>
+        internal static string IconContextMenu_Update {
+            get {
+                return ResourceManager.GetString("IconContextMenu_Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon NotificationIcon {
             get {
                 object obj = ResourceManager.GetObject("NotificationIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to N/a.
+        /// </summary>
+        internal static string QueryState_BadState {
+            get {
+                return ResourceManager.GetString("QueryState_BadState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Host.
+        /// </summary>
+        internal static string QueryState_InvalidHost {
+            get {
+                return ResourceManager.GetString("QueryState_InvalidHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pending.
+        /// </summary>
+        internal static string QueryState_Pending {
+            get {
+                return ResourceManager.GetString("QueryState_Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pending DNS.
+        /// </summary>
+        internal static string QueryState_PendingDNS {
+            get {
+                return ResourceManager.GetString("QueryState_PendingDNS", resourceCulture);
             }
         }
         

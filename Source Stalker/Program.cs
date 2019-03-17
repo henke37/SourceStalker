@@ -40,10 +40,10 @@ namespace Source_Stalker {
             private ContextMenuStrip makeContextMenu() {
                 ContextMenuStrip menu = new ContextMenuStrip();
 
-                ToolStripItem exitItem=menu.Items.Add("Exit");
+                ToolStripItem exitItem=menu.Items.Add(Resources.IconContextMenu_Exit);
                 exitItem.Click += ExitItem_Click;
 
-				ToolStripItem updateItem = menu.Items.Add("Update");
+				ToolStripItem updateItem = menu.Items.Add(Resources.IconContextMenu_Update);
 				updateItem.Click += UpdateItem_Click;
 
 				return menu;

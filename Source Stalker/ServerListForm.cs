@@ -84,18 +84,18 @@ namespace Source_Stalker {
                 return;
             }
             if(server.State == ServerStatus.StateEnum.HOSTNAME_INVALID) {
-                row.SetValues(server.Address, "", "0 (0)/0", "Invalid Host");
+                row.SetValues(server.Address, "", "0 (0)/0", Resources.QueryState_InvalidHost);
             } else if(server.State == ServerStatus.StateEnum.TIME_OUT) {
                 row.SetValues(server.Address, "", "0 (0)/0", $"-{Settings.Default.Timeout}");
             } else if(server.State == ServerStatus.StateEnum.HOSTNAME_UNRESOLVED) {
-                row.SetValues(server.Address, "", "0 (0)/0", "Pending DNS");
+                row.SetValues(server.Address, "", "0 (0)/0", Resources.QueryState_PendingDNS);
             } else if(server.State == ServerStatus.StateEnum.QUERY_SENT) {
-                row.SetValues(server.Address, "", "0 (0)/0", "Pending");
+                row.SetValues(server.Address, "", "0 (0)/0", Resources.QueryState_Pending);
             } else if(server.info !=null) {
                 string playerCountString = $"{server.info.PlayerCount} ({server.info.BotCount})/{server.info.MaxPlayerCount}";
                 row.SetValues(server.Address, server.info.Map, playerCountString, server.PingTime.TotalMilliseconds);
             } else {
-                row.SetValues(server.Address, "", "0 (0)/0", "N/a");
+                row.SetValues(server.Address, "", "0 (0)/0", Resources.QueryState_BadState);
             }
         }
 
