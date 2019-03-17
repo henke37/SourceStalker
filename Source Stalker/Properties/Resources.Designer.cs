@@ -125,6 +125,24 @@ namespace Source_Stalker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 0 (0)/0.
+        /// </summary>
+        internal static string ServerCountDummy {
+            get {
+                return ResourceManager.GetString("ServerCountDummy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1})/{2}.
+        /// </summary>
+        internal static string ServerCountFormat {
+            get {
+                return ResourceManager.GetString("ServerCountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap settings_cog {
