@@ -39,12 +39,21 @@ namespace Source_Stalker {
 
             private ContextMenuStrip makeContextMenu() {
                 ContextMenuStrip menu = new ContextMenuStrip();
+
                 ToolStripItem exitItem=menu.Items.Add("Exit");
                 exitItem.Click += ExitItem_Click;
-                return menu;
+
+				ToolStripItem updateItem = menu.Items.Add("Update");
+				updateItem.Click += UpdateItem_Click;
+
+				return menu;
             }
 
-            private void ExitItem_Click(object sender, EventArgs e) {
+			private void UpdateItem_Click(object sender, EventArgs e) {
+				manager.UpdateServerStatuses();
+			}
+
+			private void ExitItem_Click(object sender, EventArgs e) {
                 ExitThread();
             }
 
