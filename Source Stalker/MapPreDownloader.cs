@@ -11,15 +11,15 @@ namespace Source_Stalker {
 
 		static Dictionary<int, string> installPaths=new Dictionary<int, string>();
 
-		public async Task<bool> ReadyMapAsync(ServerStatus.A2S_INFO_Response info, string mapName, string fastDLRoot) {
+		public async Task<bool> ReadyMapAsync(ServerStatus.A2S_INFO_Response info, string fastDLRoot) {
 			string installPath = getInstallPath(info.ID);
 
 			string mapDownloadFolder = $@"{installPath}\{info.Folder}\download\maps\";
 			string mapStockFolder = $@"{installPath}\{info.Folder}\maps\";
 
-			string downloadedPath = mapDownloadFolder + mapName;
+			string downloadedPath = mapDownloadFolder + info.Map;
 			if(File.Exists(downloadedPath)) return true;
-			if(File.Exists(mapStockFolder + mapName)) return true;
+			if(File.Exists(mapStockFolder + info.Map)) return true;
 
 			await DownloadFile(fastDLRoot, $"maps/{info.Map}.bsp", downloadedPath);
 
