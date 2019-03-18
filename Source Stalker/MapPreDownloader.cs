@@ -11,22 +11,47 @@ namespace Source_Stalker {
 
 		static Dictionary<int, string> installPaths=new Dictionary<int, string>();
 
-		public async Task<bool> ReadyMapAsync(ServerStatus.A2S_INFO_Response info, string fastDLRoot) {
-			string installPath = getInstallPath(info.ID);
+		private ServerStatus status;
+		private readonly string fastDLRoot;
 
-			string mapDownloadFolder = $@"{installPath}\{info.Folder}\download\maps\";
-			string mapStockFolder = $@"{installPath}\{info.Folder}\maps\";
-
-			string downloadedPath = mapDownloadFolder + info.Map;
-			if(File.Exists(downloadedPath)) return true;
-			if(File.Exists(mapStockFolder + info.Map)) return true;
-
-			await DownloadFile(fastDLRoot, $"maps/{info.Map}.bsp", downloadedPath);
-
-			return false;
+		public MapPreDownloader(ServerStatus status, string fastDLRoot) {
+			this.status = status;
+			this.fastDLRoot = fastDLRoot;
 		}
 
-		private static async Task DownloadFile(string fastDLRoot, string fileNameAndPath, string downloadedPath) {
+		public Task ReadyServerAsync() {
+			string mapName = status.info.Map;
+			var nowT=ReadyMapAsync(mapName);
+
+			string nextMap=status.rules.rules["nextmap"];
+			if(status.rules.rules.TryGetValue("sm_nextmap",out string smNextMap)) {
+				nextMap = smNextMap;
+			}
+
+			Task nextT;
+			if(nextMap!="") {
+				nextT = ReadyMapAsync(nextMap);
+			} else {
+				nextT = Task.CompletedTask;
+			}
+
+			return Task.WhenAll(nextT, nowT);
+		}
+
+		private async Task ReadyMapAsync(string mapName) {
+			string installPath = getInstallPath(status.info.ID);
+
+			string mapDownloadFolder = $@"{installPath}\{status.info.Folder}\download\maps\";
+			string mapStockFolder = $@"{installPath}\{status.info.Folder}\maps\";
+
+			string downloadedPath = mapDownloadFolder + mapName;
+			if(File.Exists(downloadedPath)) return;
+			if(File.Exists(mapStockFolder + mapName)) return;
+
+			await DownloadFile($"maps/{mapName}.bsp", downloadedPath);
+		}
+
+		private async Task DownloadFile(string fileNameAndPath, string downloadedPath) {
 			string downloadURL = $"{fastDLRoot}/{fileNameAndPath}";
 			string bz2URL = $"{downloadURL}.bz2";
 

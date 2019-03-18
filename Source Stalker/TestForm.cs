@@ -13,6 +13,8 @@ namespace Source_Stalker {
 
         private ServerStatus st;
 
+		private MapPreDownloader dn;
+
         public TestForm() {
             InitializeComponent();
             st = new ServerStatus();
@@ -27,5 +29,10 @@ namespace Source_Stalker {
             }
             mapTxt.Text = st.info.Map;
         }
-    }
+
+		private void downloadButton_Click(object sender, EventArgs e) {
+			dn = new MapPreDownloader(st,"");
+			dn.ReadyServerAsync();
+		}
+	}
 }
