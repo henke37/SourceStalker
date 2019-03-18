@@ -107,9 +107,8 @@ namespace Source_Stalker {
         private void Server_StateChanged(ServerStatus server) {
             CheckDNSSuccess(server);
             UpdateStatusCounters(server);
-            if(ServerStateChanged != null) {
-                ServerStateChanged.Invoke(server);
-            }
+
+            ServerStateChanged?.Invoke(server);
         }
 
         private void UpdateStatusCounters(ServerStatus server) {
