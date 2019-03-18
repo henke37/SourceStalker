@@ -14,7 +14,7 @@ namespace Source_Stalker {
     class ServerStatus {
         private string _hostname;
         private IPHostEntry resolvedHost;
-        public short port;
+        public short port=DefaultPort;
 
         private Socket client;
 
