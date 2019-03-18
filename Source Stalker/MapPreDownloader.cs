@@ -21,12 +21,18 @@ namespace Source_Stalker {
 			if(File.Exists(downloadedPath)) return true;
 			if(File.Exists(mapStockFolder + mapName)) return true;
 
-			string downloadURL = $"{fastDLRoot}/maps/{info.Map}.bsp";
+			await DownloadFile(fastDLRoot, $"maps/{info.Map}.bsp", downloadedPath);
+
+			return false;
+		}
+
+		private static async Task DownloadFile(string fastDLRoot, string fileNameAndPath, string downloadedPath) {
+			string downloadURL = $"{fastDLRoot}/{fileNameAndPath}";
 			string bz2URL = $"{downloadURL}.bz2";
 
-			var client=new HttpClient();
+			var client = new HttpClient();
 
-			var httpResponse =await client.GetAsync(bz2URL);
+			var httpResponse = await client.GetAsync(bz2URL);
 			bool bz2Used = true;
 			if(!httpResponse.IsSuccessStatusCode) {
 				httpResponse = await client.GetAsync(downloadURL);
@@ -34,7 +40,7 @@ namespace Source_Stalker {
 			}
 			httpResponse.EnsureSuccessStatusCode();
 
-			Stream readStream=null;
+			Stream readStream = null;
 			try {
 				readStream = await httpResponse.Content.ReadAsStreamAsync();
 
@@ -48,8 +54,6 @@ namespace Source_Stalker {
 			} finally {
 				readStream.Dispose();
 			}
-
-			return false;
 		}
 
 		private static string getInstallPath(int appId) {
