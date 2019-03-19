@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Source Stalker", "Source Stalker\Source Stalker.csproj", "{8D7AAB55-43DA-4DB1-AC86-80AA8C92598F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryLib", "QueryLib\QueryLib.csproj", "{91927B85-B281-4FB8-A9EA-6739B9DE8283}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8D7AAB55-43DA-4DB1-AC86-80AA8C92598F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D7AAB55-43DA-4DB1-AC86-80AA8C92598F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D7AAB55-43DA-4DB1-AC86-80AA8C92598F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

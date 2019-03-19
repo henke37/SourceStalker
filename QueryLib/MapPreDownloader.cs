@@ -7,7 +7,7 @@ using ICSharpCode.SharpZipLib.BZip2;
 using System.Threading.Tasks;
 
 namespace Source_Stalker {
-	class MapPreDownloader {
+	public class MapPreDownloader {
 
 		static Dictionary<int, string> installPaths=new Dictionary<int, string>();
 

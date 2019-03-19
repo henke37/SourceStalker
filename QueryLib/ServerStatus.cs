@@ -11,7 +11,7 @@ using ICSharpCode.SharpZipLib.BZip2;
 //https://developer.valvesoftware.com/wiki/Server_queries
 
 namespace Source_Stalker {
-    class ServerStatus {
+    public class ServerStatus {
         private string _hostname;
         private IPHostEntry resolvedHost;
         public short port=DefaultPort;
@@ -85,9 +85,9 @@ namespace Source_Stalker {
             }
         }
 
-        internal StateEnum State {
+        public StateEnum State {
             get => _state;
-            set {
+            private set {
                 if(_state == value) return;
                 _state = value;
                 if(StateChanged != null) {
