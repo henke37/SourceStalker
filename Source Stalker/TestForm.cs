@@ -18,21 +18,37 @@ namespace Source_Stalker {
         public TestForm() {
             InitializeComponent();
             st = new ServerStatus();
-            st.Address = "31.186.251.51:27015";
-        }
+            st.Address = "45.76.80.90:27015";
+			st.Timeout = 3000;
 
-        private async void updateBtn_ClickAsync(object sender, EventArgs e) {
+			st.StateChanged += St_StateChanged;
+
+			dn = new MapPreDownloader(st, "http://redirect.tf2maps.net/");
+		}
+
+		private void St_StateChanged(ServerStatus obj) {
+			if(mapTxt.InvokeRequired) {
+				mapTxt.Invoke((MethodInvoker)delegate {
+					St_StateChanged(obj);
+				});
+				return;
+			}
+
+			if(st.State == ServerStatus.StateEnum.TIME_OUT) {
+				mapTxt.Text = "TIME_OUT";
+				return;
+			}
+			if(st.info == null) return;
+			mapTxt.Text = st.info.Map;
+		}
+
+		private async void updateBtn_ClickAsync(object sender, EventArgs e) {
             await st.Update();
-            if(st.State==ServerStatus.StateEnum.TIME_OUT) {
-                mapTxt.Text = "TIME_OUT";
-                return;
-            }
-            mapTxt.Text = st.info.Map;
+           
         }
 
-		private void downloadButton_Click(object sender, EventArgs e) {
-			dn = new MapPreDownloader(st,"");
-			dn.ReadyServerAsync();
+		private async void downloadButton_Click(object sender, EventArgs e) {
+			await dn.ReadyServerAsync();
 		}
 	}
 }
