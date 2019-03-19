@@ -48,7 +48,9 @@ namespace Source_Stalker {
         }
 
 		private async void downloadButton_Click(object sender, EventArgs e) {
+			downloadButton.Enabled = false;
 			await dn.ReadyServerAsync();
+			downloadButton.Enabled = true;
 		}
 	}
 }
