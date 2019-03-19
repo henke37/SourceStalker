@@ -131,9 +131,6 @@ namespace Source_Stalker {
 				waitingForRules = true;
                 SendQuery(new A2S_RULES_Query());
 
-				waitingForPlayers = true;
-				SendQuery(new A2S_PLAYER_Query());
-
                 while(State==StateEnum.QUERY_SENT) {
 					var response = await AwaitResponse();
 					ResponseReceived(response);
@@ -156,6 +153,9 @@ namespace Source_Stalker {
 				case A2S_RULES_Response rulesR:
 					rules = rulesR;
 					waitingForRules = false;
+
+					waitingForPlayers = true;
+					SendQuery(new A2S_PLAYER_Query());
 					break;
 
 				case A2S_PLAYER_Response playersR:
