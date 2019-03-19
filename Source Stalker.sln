@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Source Stalker", "Source St
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryLib", "QueryLib\QueryLib.csproj", "{91927B85-B281-4FB8-A9EA-6739B9DE8283}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryTest", "QueryTest\QueryTest.csproj", "{FAEC1B40-D448-4FFC-962C-52F7AB62567A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91927B85-B281-4FB8-A9EA-6739B9DE8283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAEC1B40-D448-4FFC-962C-52F7AB62567A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAEC1B40-D448-4FFC-962C-52F7AB62567A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAEC1B40-D448-4FFC-962C-52F7AB62567A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAEC1B40-D448-4FFC-962C-52F7AB62567A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

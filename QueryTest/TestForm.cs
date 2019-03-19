@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Source_Stalker;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Source_Stalker {
+namespace QueryTest {
     public partial class TestForm : Form {
 
         private ServerStatus st;

@@ -1,4 +1,4 @@
-﻿namespace Source_Stalker {
+﻿namespace QueryTest {
     partial class TestForm {
         /// <summary>
         /// Required designer variable.
