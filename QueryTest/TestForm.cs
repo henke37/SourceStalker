@@ -40,7 +40,7 @@ namespace QueryTest {
 				return;
 			}
 			if(st.info == null) return;
-			mapTxt.Text = st.info.Map;
+			mapTxt.Text = $"{st.info.Map} {st.info.PlayerCount}/{st.info.MaxPlayerCount}";
 		}
 
 		private async void updateBtn_ClickAsync(object sender, EventArgs e) {
