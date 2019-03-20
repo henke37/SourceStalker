@@ -44,7 +44,7 @@ namespace Source_Stalker {
 			string mapDownloadFolder = $@"{installPath}\{status.info.Folder}\download\maps\";
 			string mapStockFolder = $@"{installPath}\{status.info.Folder}\maps\";
 
-			string downloadedPath = mapDownloadFolder + mapName;
+			string downloadedPath = mapDownloadFolder + mapName + ".bsp";
 			if(File.Exists(downloadedPath)) return;
 			if(File.Exists(mapStockFolder + mapName)) return;
 
