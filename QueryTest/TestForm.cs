@@ -39,8 +39,8 @@ namespace QueryTest {
 				mapTxt.Text = "TIME_OUT";
 				return;
 			}
-			if(st.info == null) return;
-			mapTxt.Text = $"{st.info.Map} {st.info.PlayerCount}/{st.info.MaxPlayerCount}";
+			if(st.Info == null) return;
+			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 		}
 
 		private async void updateBtn_ClickAsync(object sender, EventArgs e) {

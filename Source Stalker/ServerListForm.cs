@@ -91,9 +91,9 @@ namespace Source_Stalker {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_PendingDNS);
             } else if(server.State == ServerStatus.QueryState.QUERY_SENT) {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_Pending);
-            } else if(server.info !=null) {
-				string playerCountString = string.Format(Resources.ServerCountFormat, server.info.PlayerCount, server.info.BotCount, server.info.MaxPlayerCount);
-                row.SetValues(server.Address, server.info.Map, playerCountString, server.PingTime.TotalMilliseconds);
+            } else if(server.Info !=null) {
+				string playerCountString = string.Format(Resources.ServerCountFormat, server.Info.PlayerCount, server.Info.BotCount, server.Info.MaxPlayerCount);
+                row.SetValues(server.Address, server.Info.Map, playerCountString, server.PingTime.TotalMilliseconds);
             } else {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_BadState);
             }

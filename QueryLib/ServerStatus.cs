@@ -14,7 +14,7 @@ namespace Source_Stalker {
     public class ServerStatus {
         private string _hostname;
         private IPHostEntry resolvedHost;
-        public short port=DefaultPort;
+        public short Port=DefaultPort;
 
         private Socket client;
 
@@ -22,14 +22,14 @@ namespace Source_Stalker {
 		private bool waitingForPlayers;
 		private bool waitingForRules;
 
-		public A2S_INFO_Response info;
-        public A2S_RULES_Response rules;
-        public A2S_PLAYER_Response players;
+		public A2S_INFO_Response Info;
+        public A2S_RULES_Response Rules;
+        public A2S_PLAYER_Response Players;
 
-		public DateTime queryTime;
+		public DateTime QueryTime;
         private DateTime responseTime;
 
-		public TimeSpan PingTime { get => responseTime - queryTime; }
+		public TimeSpan PingTime { get => responseTime - QueryTime; }
 
         public enum QueryState {
             INVALID,
@@ -66,15 +66,15 @@ namespace Source_Stalker {
         public string Address {
             get {
                 if(_hostname == null) return null;
-                return $"{_hostname}:{port}";
+                return $"{_hostname}:{Port}";
             }
             set {
                 var parts = value.Split(new[] { ':' });
                 if(parts.Length != 2) {
-                    port = DefaultPort;
+                    Port = DefaultPort;
                     HostName = value;
                 } else {
-                    port = short.Parse(parts[1]);
+                    Port = short.Parse(parts[1]);
                     HostName = parts[0];
                 }
             }
@@ -100,7 +100,7 @@ namespace Source_Stalker {
             resolvedHost = null;
 
 			if(IPAddress.TryParse(_hostname,out IPAddress addr)) {
-				client.Connect(addr, port);
+				client.Connect(addr, Port);
 				State = QueryState.HOSTNAME_RESOLVED;
 				return;
 			}
@@ -112,7 +112,7 @@ namespace Source_Stalker {
 					State = QueryState.HOSTNAME_INVALID;
 					return;
 				}
-                client.Connect(resolvedHost.AddressList[0], port);
+                client.Connect(resolvedHost.AddressList[0], Port);
                 State = QueryState.HOSTNAME_RESOLVED;
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.HostNotFound) throw;
@@ -124,7 +124,7 @@ namespace Source_Stalker {
             State = QueryState.QUERY_SENT;
             try {
 
-				queryTime = DateTime.Now;
+				QueryTime = DateTime.Now;
 				waitingForInfo = true;
                 SendQuery(new A2S_INFO_Request());
 
@@ -145,13 +145,13 @@ namespace Source_Stalker {
 		private void ResponseReceived(BaseResponse response) {
 			switch(response) {
 				case A2S_INFO_Response infoR:
-					info = infoR;
+					Info = infoR;
 					responseTime = DateTime.Now;
 					waitingForInfo = false;
 					break;
 
 				case A2S_RULES_Response rulesR:
-					rules = rulesR;
+					Rules = rulesR;
 					waitingForRules = false;
 
 					waitingForPlayers = true;
@@ -159,7 +159,7 @@ namespace Source_Stalker {
 					break;
 
 				case A2S_PLAYER_Response playersR:
-					players = playersR;
+					Players = playersR;
 					waitingForPlayers = false;
 					break;
 

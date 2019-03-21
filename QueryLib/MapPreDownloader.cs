@@ -20,11 +20,11 @@ namespace Source_Stalker {
 		}
 
 		public Task ReadyServerAsync() {
-			string mapName = status.info.Map;
+			string mapName = status.Info.Map;
 			var nowT=ReadyMapAsync(mapName);
 
-			string nextMap=status.rules["nextlevel"];
-			if(status.rules.TryGetCVar("sm_nextmap",out string smNextMap)) {
+			string nextMap=status.Rules["nextlevel"];
+			if(status.Rules.TryGetCVar("sm_nextmap",out string smNextMap)) {
 				nextMap = smNextMap;
 			}
 
@@ -39,10 +39,10 @@ namespace Source_Stalker {
 		}
 
 		private async Task ReadyMapAsync(string mapName) {
-			string installPath = getInstallPath(status.info.Id);
+			string installPath = getInstallPath(status.Info.Id);
 
-			string mapDownloadFolder = $@"{installPath}\{status.info.Folder}\download\maps\";
-			string mapStockFolder = $@"{installPath}\{status.info.Folder}\maps\";
+			string mapDownloadFolder = $@"{installPath}\{status.Info.Folder}\download\maps\";
+			string mapStockFolder = $@"{installPath}\{status.Info.Folder}\maps\";
 
 			string downloadedPath = mapDownloadFolder + mapName + ".bsp";
 			if(File.Exists(downloadedPath)) return;
