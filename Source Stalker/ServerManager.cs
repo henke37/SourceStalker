@@ -112,16 +112,16 @@ namespace Source_Stalker {
         }
 
         private void UpdateStatusCounters(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.ANSWER_RECEIVED || server.State == ServerStatus.StateEnum.TIME_OUT) {
+            if(server.State == ServerStatus.QueryState.ANSWER_RECEIVED || server.State == ServerStatus.QueryState.TIME_OUT) {
                 pendingUpdateCount--;
             }
-            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
+            if(server.State == ServerStatus.QueryState.TIME_OUT) {
                 timedOutCount++;
             }
         }
 
         private async void CheckDNSSuccess(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.HOSTNAME_RESOLVED) {
+            if(server.State == ServerStatus.QueryState.HOSTNAME_RESOLVED) {
                 await updateServer(server);
             }
         }
@@ -140,7 +140,7 @@ namespace Source_Stalker {
         }
 
         private Task updateServer(ServerStatus server) {
-            if(server.State == ServerStatus.StateEnum.TIME_OUT) {
+            if(server.State == ServerStatus.QueryState.TIME_OUT) {
                 timedOutCount--;
             }
 

@@ -23,8 +23,8 @@ namespace Source_Stalker {
 			string mapName = status.info.Map;
 			var nowT=ReadyMapAsync(mapName);
 
-			string nextMap=status.rules.rules["nextlevel"];
-			if(status.rules.rules.TryGetValue("sm_nextmap",out string smNextMap)) {
+			string nextMap=status.rules.Rules["nextlevel"];
+			if(status.rules.Rules.TryGetValue("sm_nextmap",out string smNextMap)) {
 				nextMap = smNextMap;
 			}
 
@@ -39,7 +39,7 @@ namespace Source_Stalker {
 		}
 
 		private async Task ReadyMapAsync(string mapName) {
-			string installPath = getInstallPath(status.info.ID);
+			string installPath = getInstallPath(status.info.Id);
 
 			string mapDownloadFolder = $@"{installPath}\{status.info.Folder}\download\maps\";
 			string mapStockFolder = $@"{installPath}\{status.info.Folder}\maps\";
@@ -75,6 +75,12 @@ namespace Source_Stalker {
 
 				using(var writeStream = File.OpenWrite(downloadedPath)) {
 					await readStream.CopyToAsync(writeStream);
+				}
+				if(httpResponse.Headers.TryGetValues("Last-Modified", out var dates)) {
+					var enumerator=dates.GetEnumerator();
+					enumerator.MoveNext();
+					var time=DateTime.Parse(enumerator.Current);
+					File.SetLastWriteTimeUtc(downloadedPath, time);
 				}
 			} finally {
 				readStream.Dispose();

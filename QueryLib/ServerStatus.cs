@@ -31,7 +31,7 @@ namespace Source_Stalker {
 
 		public TimeSpan PingTime { get => responseTime - queryTime; }
 
-        public enum StateEnum {
+        public enum QueryState {
             INVALID,
             HOSTNAME_UNRESOLVED,
             HOSTNAME_RESOLVED,
@@ -41,7 +41,7 @@ namespace Source_Stalker {
             TIME_OUT
         }
 
-        private StateEnum _state = StateEnum.INVALID;
+        private QueryState _state = QueryState.INVALID;
 
         public event Action<ServerStatus> StateChanged;
 
@@ -85,7 +85,7 @@ namespace Source_Stalker {
             }
         }
 
-        public StateEnum State {
+        public QueryState State {
             get => _state;
             private set {
                 if(_state == value) return;
@@ -101,27 +101,27 @@ namespace Source_Stalker {
 
 			if(IPAddress.TryParse(_hostname,out IPAddress addr)) {
 				client.Connect(addr, port);
-				State = StateEnum.HOSTNAME_RESOLVED;
+				State = QueryState.HOSTNAME_RESOLVED;
 				return;
 			}
 
-            State = StateEnum.HOSTNAME_UNRESOLVED;
+            State = QueryState.HOSTNAME_UNRESOLVED;
             try {
                 resolvedHost = await Dns.GetHostEntryAsync(_hostname);
 				if(resolvedHost.AddressList.Length<1) {
-					State = StateEnum.HOSTNAME_INVALID;
+					State = QueryState.HOSTNAME_INVALID;
 					return;
 				}
                 client.Connect(resolvedHost.AddressList[0], port);
-                State = StateEnum.HOSTNAME_RESOLVED;
+                State = QueryState.HOSTNAME_RESOLVED;
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.HostNotFound) throw;
-                State = StateEnum.HOSTNAME_INVALID;
+                State = QueryState.HOSTNAME_INVALID;
             }
         }
 
         public async Task Update() {
-            State = StateEnum.QUERY_SENT;
+            State = QueryState.QUERY_SENT;
             try {
 
 				queryTime = DateTime.Now;
@@ -131,14 +131,14 @@ namespace Source_Stalker {
 				waitingForRules = true;
                 SendQuery(new A2S_RULES_Query());
 
-                while(State==StateEnum.QUERY_SENT) {
+                while(State==QueryState.QUERY_SENT) {
 					var response = await AwaitResponse();
 					ResponseReceived(response);
 				}
 
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.TimedOut) throw;
-                State = StateEnum.TIME_OUT;
+                State = QueryState.TIME_OUT;
             }
         }
 
@@ -174,7 +174,7 @@ namespace Source_Stalker {
 			}
 
 			if(!(waitingForInfo || waitingForRules || waitingForPlayers)) {
-				State = StateEnum.ANSWER_RECEIVED;
+				State = QueryState.ANSWER_RECEIVED;
 			}
 		}
 
@@ -182,9 +182,9 @@ namespace Source_Stalker {
 		public bool IsReadyForUpdate {
             get {
                 switch(_state) {
-                    case StateEnum.ANSWER_RECEIVED: return true;
-                    case StateEnum.HOSTNAME_RESOLVED: return true;
-                    case StateEnum.TIME_OUT: return true;
+                    case QueryState.ANSWER_RECEIVED: return true;
+                    case QueryState.HOSTNAME_RESOLVED: return true;
+                    case QueryState.TIME_OUT: return true;
                 }
                 return false;
             }
@@ -324,12 +324,12 @@ namespace Source_Stalker {
             public string Map;
             public string Folder;
             public string Game;
-            public short ID;
+            public short Id;
             public byte PlayerCount;
             public byte MaxPlayerCount;
             public byte BotCount;
             public ServerTypeEnum ServerType;
-            public EnvironmentEnum Environment;
+            public Platform Environment;
             public bool PasswordRequired;
             public bool VACEnabled;
             public string GameVersion;
@@ -367,7 +367,7 @@ namespace Source_Stalker {
                 Map = r.ReadNullTerminatedString();
                 Folder = r.ReadNullTerminatedString();
                 Game = r.ReadNullTerminatedString();
-                ID = r.ReadInt16();
+                Id = r.ReadInt16();
                 PlayerCount = r.ReadByte();
                 MaxPlayerCount = r.ReadByte();
                 BotCount = r.ReadByte();
@@ -394,33 +394,33 @@ namespace Source_Stalker {
 
             private static ServerTypeEnum ParseServerType(byte v) {
                 switch((char)v) {
-                    case 'd': return ServerTypeEnum.DEDICATED;
-                    case 'l': return ServerTypeEnum.LOCAL;
-                    case 'p': return ServerTypeEnum.PROXY;
+                    case 'd': return ServerTypeEnum.Dedicated;
+                    case 'l': return ServerTypeEnum.Local;
+                    case 'p': return ServerTypeEnum.Proxy;
                     default: throw new ArgumentOutOfRangeException();
                 }
             }
 
-            private EnvironmentEnum ParseEnvironment(byte v) {
+            private Platform ParseEnvironment(byte v) {
                 switch((char)v) {
-                    case 'l': return EnvironmentEnum.LINUX;
-                    case 'w': return EnvironmentEnum.WINDOWS;
+                    case 'l': return Platform.Linux;
+                    case 'w': return Platform.Windows;
                     case 'm':
-                    case 'o': return EnvironmentEnum.MAC;
+                    case 'o': return Platform.Mac;
                     default: throw new ArgumentOutOfRangeException();
                 }
             }
 
             public enum ServerTypeEnum {
-                DEDICATED = 'd',
-                LOCAL = 'l',
-                PROXY = 'p'
+                Dedicated = 'd',
+                Local = 'l',
+                Proxy = 'p'
             }
 
-            public enum EnvironmentEnum {
-                LINUX = 'l',
-                WINDOWS = 'w',
-                MAC = 'm'
+            public enum Platform {
+                Linux = 'l',
+                Windows = 'w',
+                Mac = 'm'
             }
         }
 
@@ -454,16 +454,16 @@ namespace Source_Stalker {
 
         public class A2S_RULES_Response : BaseResponse {
 
-            public Dictionary<string, string> rules;
+            public Dictionary<string, string> Rules;
 
             public A2S_RULES_Response(BinaryReader r) {
-                rules = new Dictionary<string, string>();
+                Rules = new Dictionary<string, string>();
 
                 ushort ruleCount = r.ReadUInt16();
                 for(ushort ruleIndex = 0; ruleIndex < ruleCount; ++ruleIndex) {
                     string key = r.ReadNullTerminatedString();
                     string value = r.ReadNullTerminatedString();
-                    rules.Add(key, value);
+                    Rules.Add(key, value);
                 }
             }
         }

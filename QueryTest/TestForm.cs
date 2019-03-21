@@ -35,7 +35,7 @@ namespace QueryTest {
 				return;
 			}
 
-			if(st.State == ServerStatus.StateEnum.TIME_OUT) {
+			if(st.State == ServerStatus.QueryState.TIME_OUT) {
 				mapTxt.Text = "TIME_OUT";
 				return;
 			}
