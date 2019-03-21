@@ -452,21 +452,26 @@ namespace Source_Stalker {
             public A2S_RULES_Query(uint challenge) : base(Header, challenge) { }
         }
 
-        public class A2S_RULES_Response : BaseResponse {
+		public class A2S_RULES_Response : BaseResponse {
 
-            public Dictionary<string, string> Rules;
+			public Dictionary<string, string> Rules;
 
-            public A2S_RULES_Response(BinaryReader r) {
-                Rules = new Dictionary<string, string>();
+			public A2S_RULES_Response(BinaryReader r) {
+				Rules = new Dictionary<string, string>();
 
-                ushort ruleCount = r.ReadUInt16();
-                for(ushort ruleIndex = 0; ruleIndex < ruleCount; ++ruleIndex) {
-                    string key = r.ReadNullTerminatedString();
-                    string value = r.ReadNullTerminatedString();
-                    Rules.Add(key, value);
-                }
-            }
-        }
+				ushort ruleCount = r.ReadUInt16();
+				for(ushort ruleIndex = 0; ruleIndex < ruleCount; ++ruleIndex) {
+					string key = r.ReadNullTerminatedString();
+					string value = r.ReadNullTerminatedString();
+					Rules.Add(key, value);
+				}
+			}
+
+			public bool TryGetCVar(string varName, out string varValue) => Rules.TryGetValue(varName, out varValue);
+			public string this[string varName] {
+				get { return Rules[varName]; }
+			}
+		}
 
         private class A2S_PLAYER_Query : BaseChallengeQuery {
             private const byte Header = 0x55;

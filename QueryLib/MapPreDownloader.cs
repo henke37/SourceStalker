@@ -23,8 +23,8 @@ namespace Source_Stalker {
 			string mapName = status.info.Map;
 			var nowT=ReadyMapAsync(mapName);
 
-			string nextMap=status.rules.Rules["nextlevel"];
-			if(status.rules.Rules.TryGetValue("sm_nextmap",out string smNextMap)) {
+			string nextMap=status.rules["nextlevel"];
+			if(status.rules.TryGetCVar("sm_nextmap",out string smNextMap)) {
 				nextMap = smNextMap;
 			}
 
