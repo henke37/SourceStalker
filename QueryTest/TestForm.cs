@@ -19,7 +19,7 @@ namespace QueryTest {
         public TestForm() {
             InitializeComponent();
             st = new ServerStatus();
-            st.Address = "45.76.80.90:27015";
+            st.Address = addressBox.Text;
 			st.Timeout = 3000;
 
 			st.StateChanged += St_StateChanged;
@@ -41,6 +41,12 @@ namespace QueryTest {
 			}
 			if(st.Info == null) return;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
+
+			string nextMap = st.Rules["nextlevel"];
+			if(st.Rules.TryGetCVar("sm_nextmap", out string smNextMap)) {
+				nextMap = smNextMap;
+			}
+			nextMapTxt.Text = nextMap;
 		}
 
 		private async void updateBtn_ClickAsync(object sender, EventArgs e) {
@@ -52,6 +58,10 @@ namespace QueryTest {
 			downloadButton.Enabled = false;
 			await dn.ReadyServerAsync();
 			downloadButton.Enabled = true;
+		}
+
+		private void addressBox_TextChanged(object sender, EventArgs e) {
+			st.Address = addressBox.Text;
 		}
 	}
 }
