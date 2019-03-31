@@ -29,7 +29,7 @@ namespace Source_Stalker {
 			}
 
 			Task nextT;
-			if(nextMap!="") {
+			if(nextMap!="" && nextMap!=mapName) {
 				nextT = ReadyMapAsync(nextMap);
 			} else {
 				nextT = Task.CompletedTask;
