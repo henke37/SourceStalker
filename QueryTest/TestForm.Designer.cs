@@ -90,6 +90,7 @@
 			this.Controls.Add(this.updateBtn);
 			this.Name = "TestForm";
 			this.Text = "TestForm";
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TestForm_FormClosed);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

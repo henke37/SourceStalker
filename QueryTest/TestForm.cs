@@ -1,4 +1,5 @@
-﻿using Source_Stalker;
+﻿using QueryTest.Properties;
+using Source_Stalker;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -62,6 +63,10 @@ namespace QueryTest {
 
 		private void addressBox_TextChanged(object sender, EventArgs e) {
 			st.Address = addressBox.Text;
+		}
+
+		private void TestForm_FormClosed(object sender, FormClosedEventArgs e) {
+			Settings.Default.Save();
 		}
 	}
 }
