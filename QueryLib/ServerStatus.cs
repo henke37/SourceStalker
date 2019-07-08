@@ -27,22 +27,22 @@ namespace Henke37.Valve.Source.ServerQuery {
         public A2S_RULES_Response Rules;
         public A2S_PLAYER_Response Players;
 
-		public DateTime QueryTime;
+		private DateTime QueryTime;
         private DateTime responseTime;
 
 		public TimeSpan PingTime { get => responseTime - QueryTime; }
 
         public enum QueryState {
-            INVALID,
-            HOSTNAME_UNRESOLVED,
-            HOSTNAME_RESOLVED,
-            HOSTNAME_INVALID,
-            QUERY_SENT,
-            ANSWER_RECEIVED,
-            TIME_OUT
+            Invalid,
+			HostNameResolving,
+            HostNameResolved,
+            HostNameInvalid,
+            QuerySent,
+            AnswerReceived,
+            TimeOut
         }
 
-        private QueryState _state = QueryState.INVALID;
+        private QueryState _state = QueryState.Invalid;
 
         public event Action<ServerStatus> StateChanged;
 
@@ -102,27 +102,27 @@ namespace Henke37.Valve.Source.ServerQuery {
 
 			if(IPAddress.TryParse(_hostname,out IPAddress addr)) {
 				client.Connect(addr, Port);
-				State = QueryState.HOSTNAME_RESOLVED;
+				State = QueryState.HostNameResolved;
 				return;
 			}
 
-            State = QueryState.HOSTNAME_UNRESOLVED;
+            State = QueryState.HostNameResolving;
             try {
                 resolvedHost = await Dns.GetHostEntryAsync(_hostname);
 				if(resolvedHost.AddressList.Length<1) {
-					State = QueryState.HOSTNAME_INVALID;
+					State = QueryState.HostNameInvalid;
 					return;
 				}
                 client.Connect(resolvedHost.AddressList[0], Port);
-                State = QueryState.HOSTNAME_RESOLVED;
+                State = QueryState.HostNameResolved;
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.HostNotFound) throw;
-                State = QueryState.HOSTNAME_INVALID;
+                State = QueryState.HostNameInvalid;
             }
         }
 
         public async Task Update() {
-            State = QueryState.QUERY_SENT;
+            State = QueryState.QuerySent;
             try {
 
 				QueryTime = DateTime.Now;
@@ -132,14 +132,14 @@ namespace Henke37.Valve.Source.ServerQuery {
 				waitingForRules = true;
                 SendQuery(new A2S_RULES_Query());
 
-                while(State==QueryState.QUERY_SENT) {
+                while(State==QueryState.QuerySent) {
 					var response = await AwaitResponse();
 					ResponseReceived(response);
 				}
 
             } catch(SocketException err) {
                 if(err.ErrorCode != (int)SocketError.TimedOut) throw;
-                State = QueryState.TIME_OUT;
+                State = QueryState.TimeOut;
             }
         }
 
@@ -175,7 +175,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 			}
 
 			if(!(waitingForInfo || waitingForRules || waitingForPlayers)) {
-				State = QueryState.ANSWER_RECEIVED;
+				State = QueryState.AnswerReceived;
 			}
 		}
 
@@ -183,9 +183,9 @@ namespace Henke37.Valve.Source.ServerQuery {
 		public bool IsReadyForUpdate {
             get {
                 switch(_state) {
-                    case QueryState.ANSWER_RECEIVED: return true;
-                    case QueryState.HOSTNAME_RESOLVED: return true;
-                    case QueryState.TIME_OUT: return true;
+                    case QueryState.AnswerReceived: return true;
+                    case QueryState.HostNameResolved: return true;
+                    case QueryState.TimeOut: return true;
                 }
                 return false;
             }

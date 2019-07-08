@@ -84,13 +84,13 @@ namespace Source_Stalker {
                 });
                 return;
             }
-            if(server.State == ServerStatus.QueryState.HOSTNAME_INVALID) {
+            if(server.State == ServerStatus.QueryState.HostNameInvalid) {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_InvalidHost);
-            } else if(server.State == ServerStatus.QueryState.TIME_OUT) {
+            } else if(server.State == ServerStatus.QueryState.TimeOut) {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, $"-{Settings.Default.Timeout}");
-            } else if(server.State == ServerStatus.QueryState.HOSTNAME_UNRESOLVED) {
+            } else if(server.State == ServerStatus.QueryState.HostNameResolving) {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_PendingDNS);
-            } else if(server.State == ServerStatus.QueryState.QUERY_SENT) {
+            } else if(server.State == ServerStatus.QueryState.QuerySent) {
                 row.SetValues(server.Address, "", Resources.ServerCountDummy, Resources.QueryState_Pending);
             } else if(server.Info !=null) {
 				string playerCountString = string.Format(Resources.ServerCountFormat, server.Info.PlayerCount, server.Info.BotCount, server.Info.MaxPlayerCount);
