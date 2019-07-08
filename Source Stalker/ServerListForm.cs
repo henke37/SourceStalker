@@ -1,4 +1,5 @@
-﻿using Source_Stalker.Properties;
+﻿using Henke37.Valve.Source.ServerQuery;
+using Source_Stalker.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

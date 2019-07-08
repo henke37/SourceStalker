@@ -80,6 +80,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Predownloader\Predownloader.csproj">
+      <Project>{FE79C0FE-4B33-4780-BFDE-207C307E76BC}</Project>
+      <Name>Predownloader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QueryLib\QueryLib.csproj">
       <Project>{91927B85-B281-4FB8-A9EA-6739B9DE8283}</Project>
       <Name>QueryLib</Name>

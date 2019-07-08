@@ -1,13 +1,7 @@
-﻿using QueryTest.Properties;
-using Source_Stalker;
+﻿using Henke37.Valve.Source.Predownloader;
+using Henke37.Valve.Source.ServerQuery;
+using QueryTest.Properties;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace QueryTest {

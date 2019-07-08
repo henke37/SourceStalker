@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using HenkesUtils.Steam;
 using ICSharpCode.SharpZipLib.BZip2;
 using System.Threading.Tasks;
+using Henke37.Valve.Source.ServerQuery;
+using Henke37.Valve.Steam;
 
-namespace Source_Stalker {
+namespace Henke37.Valve.Source.Predownloader {
 	public class MapPreDownloader {
 
 		static Dictionary<int, string> installPaths=new Dictionary<int, string>();

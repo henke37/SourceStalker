@@ -6,11 +6,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using Henke37.IOUtils;
 using ICSharpCode.SharpZipLib.BZip2;
 
 //https://developer.valvesoftware.com/wiki/Server_queries
 
-namespace Source_Stalker {
+namespace Henke37.Valve.Source.ServerQuery {
     public class ServerStatus {
         private string _hostname;
         private IPHostEntry resolvedHost;
@@ -363,10 +364,10 @@ namespace Source_Stalker {
 
             private void Read(BinaryReader r) {
                 Protocol = r.ReadByte();
-                ServerName = r.ReadNullTerminatedString();
-                Map = r.ReadNullTerminatedString();
-                Folder = r.ReadNullTerminatedString();
-                Game = r.ReadNullTerminatedString();
+                ServerName = r.ReadNullTerminatedUTF8String();
+                Map = r.ReadNullTerminatedUTF8String();
+                Folder = r.ReadNullTerminatedUTF8String();
+                Game = r.ReadNullTerminatedUTF8String();
                 Id = r.ReadInt16();
                 PlayerCount = r.ReadByte();
                 MaxPlayerCount = r.ReadByte();
@@ -375,7 +376,7 @@ namespace Source_Stalker {
                 Environment = ParseEnvironment(r.ReadByte());
                 PasswordRequired = r.ReadBoolean();
                 VACEnabled = r.ReadBoolean();
-                GameVersion = r.ReadNullTerminatedString();
+                GameVersion = r.ReadNullTerminatedUTF8String();
                 byte EDF = r.ReadByte();
                 if((EDF & HasPortNumber) == HasPortNumber) {
                     PortNumber = r.ReadUInt16();
@@ -385,10 +386,10 @@ namespace Source_Stalker {
                 }
                 if((EDF & HasSTV) == HasSTV) {
                     STVPortNumber = r.ReadUInt16();
-                    STVHostName = r.ReadNullTerminatedString();
+                    STVHostName = r.ReadNullTerminatedUTF8String();
                 }
                 if((EDF & HasTags) == HasTags) {
-                    Tags = r.ReadNullTerminatedString();
+                    Tags = r.ReadNullTerminatedUTF8String();
                 }
             }
 
@@ -461,8 +462,8 @@ namespace Source_Stalker {
 
 				ushort ruleCount = r.ReadUInt16();
 				for(ushort ruleIndex = 0; ruleIndex < ruleCount; ++ruleIndex) {
-					string key = r.ReadNullTerminatedString();
-					string value = r.ReadNullTerminatedString();
+					string key = r.ReadNullTerminatedUTF8String();
+					string value = r.ReadNullTerminatedUTF8String();
 					Rules.Add(key, value);
 				}
 			}
@@ -490,7 +491,7 @@ namespace Source_Stalker {
 
                 for(byte playerIndex = 0; playerIndex < playerCount; ++playerIndex) {
                     byte index = r.ReadByte();
-                    string name = r.ReadNullTerminatedString();
+                    string name = r.ReadNullTerminatedUTF8String();
                     int score = r.ReadInt32();
                     float playtime = r.ReadSingle();
 
@@ -515,7 +516,7 @@ namespace Source_Stalker {
             }
         }
 
-        public class A2S_SERVERQUERY_GETCHALLENGE_Response : BaseResponse {
+        private class A2S_SERVERQUERY_GETCHALLENGE_Response : BaseResponse {
             public uint Challenge;
             public A2S_SERVERQUERY_GETCHALLENGE_Response(BinaryReader r) {
                 Challenge = r.ReadUInt32();
