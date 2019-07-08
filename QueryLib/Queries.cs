@@ -22,7 +22,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 	}
 
 	public class A2S_INFO_Response : BaseResponse {
-		public byte Protocol;
+		public byte ProtocolVersion;
 		public string ServerName;
 		public string Map;
 		public string Folder;
@@ -37,8 +37,8 @@ namespace Henke37.Valve.Source.ServerQuery {
 		public bool VACEnabled;
 		public string GameVersion;
 		public ushort PortNumber;
-		public ushort STVPortNumber;
-		public string STVHostName;
+		public ushort SourceTVPortNumber;
+		public string SourceTVHostName;
 		public string Tags;
 		public ulong ServerSteamId;
 
@@ -65,7 +65,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 		}
 
 		internal void Read(BinaryReader r) {
-			Protocol = r.ReadByte();
+			ProtocolVersion = r.ReadByte();
 			ServerName = r.ReadNullTerminatedUTF8String();
 			Map = r.ReadNullTerminatedUTF8String();
 			Folder = r.ReadNullTerminatedUTF8String();
@@ -87,8 +87,8 @@ namespace Henke37.Valve.Source.ServerQuery {
 				ServerSteamId = r.ReadUInt64();
 			}
 			if((EDF & HasSTV) == HasSTV) {
-				STVPortNumber = r.ReadUInt16();
-				STVHostName = r.ReadNullTerminatedUTF8String();
+				SourceTVPortNumber = r.ReadUInt16();
+				SourceTVHostName = r.ReadNullTerminatedUTF8String();
 			}
 			if((EDF & HasTags) == HasTags) {
 				Tags = r.ReadNullTerminatedUTF8String();
