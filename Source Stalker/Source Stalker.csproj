@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>Source_Stalker</RootNamespace>
     <AssemblyName>Source Stalker</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <PublishUrl>publish\</PublishUrl>
@@ -26,6 +26,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,9 +50,6 @@
   <ItemGroup>
     <Reference Include="Henke37.IOUtils, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Henke37.IOUtils.1.1.0\lib\net452\Henke37.IOUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="Henke37.SteamUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Henke37.SteamUtils.1.0.0\lib\netstandard2.0\Henke37.SteamUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

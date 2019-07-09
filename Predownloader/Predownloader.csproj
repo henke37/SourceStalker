@@ -1,16 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
+		<PackageId>Henke37.Valve.Source.Predownloader</PackageId>
+		<Product>Henke37.Valve.Source.Predownloader</Product>
+		<Authors>Henke37</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/henke37/SourceStalker</PackageProjectUrl>
+		<NeutralLanguage>en</NeutralLanguage>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>1.0.1</Version>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="SharpZipLib" Version="1.1.0" />
+		<PackageReference Include="Henke37.Valve.Steam" Version="1.0.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.1.0" />
-    <PackageReference Include="Henke37.Valve.Steam" Version="1.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\QueryLib\QueryLib.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\QueryLib\QueryLib.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+	  <Reference Include="System.Net.Http">
+	    <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Net.Http.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 
 </Project>

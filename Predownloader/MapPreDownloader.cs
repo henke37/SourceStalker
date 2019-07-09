@@ -39,17 +39,17 @@ namespace Henke37.Valve.Source.Predownloader {
 			return Task.WhenAll(nextT, nowT);
 		}
 
-		private async Task ReadyMapAsync(string mapName) {
+		private Task ReadyMapAsync(string mapName) {
 			string installPath = getInstallPath(status.Info.Id);
 
 			string mapDownloadFolder = $@"{installPath}\{status.Info.Folder}\download\maps\";
 			string mapStockFolder = $@"{installPath}\{status.Info.Folder}\maps\";
 
 			string downloadedPath = mapDownloadFolder + mapName + ".bsp";
-			if(File.Exists(downloadedPath)) return;
-			if(File.Exists(mapStockFolder + mapName)) return;
+			if(File.Exists(downloadedPath)) return Task.CompletedTask;
+			if(File.Exists(mapStockFolder + mapName)) return Task.CompletedTask;
 
-			await DownloadFile($"maps/{mapName}.bsp", downloadedPath);
+			return DownloadFile($"maps/{mapName}.bsp", downloadedPath);
 		}
 
 		private async Task DownloadFile(string fileNameAndPath, string downloadedPath) {
