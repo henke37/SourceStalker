@@ -9,6 +9,7 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>1.0.1</Version>
+		<Description>Utility class to fetch and download maps from a source game server that is using the fastdownload protocol.</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
