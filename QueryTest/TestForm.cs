@@ -32,9 +32,11 @@ namespace QueryTest {
 
 			if(st.State == ServerStatus.QueryState.TimeOut) {
 				mapTxt.Text = "TIME_OUT";
+				downloadButton.Enabled = false;
 				return;
 			}
 			if(st.Info == null) return;
+			downloadButton.Enabled = true;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 
 			string nextMap = st.Rules["nextlevel"];
