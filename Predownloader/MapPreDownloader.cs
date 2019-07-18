@@ -49,6 +49,8 @@ namespace Henke37.Valve.Source.Predownloader {
 			if(File.Exists(downloadedPath)) return Task.CompletedTask;
 			if(File.Exists(mapStockFolder + mapName)) return Task.CompletedTask;
 
+			Directory.CreateDirectory(mapDownloadFolder);
+
 			return DownloadFile($"maps/{mapName}.bsp", downloadedPath);
 		}
 
