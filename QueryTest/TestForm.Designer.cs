@@ -23,11 +23,14 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+			this.components = new System.ComponentModel.Container();
 			this.updateBtn = new System.Windows.Forms.Button();
 			this.mapTxt = new System.Windows.Forms.Label();
 			this.downloadButton = new System.Windows.Forms.Button();
 			this.addressBox = new System.Windows.Forms.TextBox();
 			this.nextMapTxt = new System.Windows.Forms.Label();
+			this.autoUpdate_Cb = new System.Windows.Forms.CheckBox();
+			this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
 			// 
 			// updateBtn
@@ -79,11 +82,28 @@
 			this.nextMapTxt.TabIndex = 4;
 			this.nextMapTxt.Text = "label1";
 			// 
+			// autoUpdate_Cb
+			// 
+			this.autoUpdate_Cb.AutoSize = true;
+			this.autoUpdate_Cb.Location = new System.Drawing.Point(176, 54);
+			this.autoUpdate_Cb.Name = "autoUpdate_Cb";
+			this.autoUpdate_Cb.Size = new System.Drawing.Size(84, 17);
+			this.autoUpdate_Cb.TabIndex = 5;
+			this.autoUpdate_Cb.Text = "Auto update";
+			this.autoUpdate_Cb.UseVisualStyleBackColor = true;
+			this.autoUpdate_Cb.CheckedChanged += new System.EventHandler(this.AutoUpdate_Cb_CheckedChanged);
+			// 
+			// UpdateTimer
+			// 
+			this.UpdateTimer.Interval = 30000;
+			this.UpdateTimer.Tick += new System.EventHandler(this.UpdateTimer_Tick);
+			// 
 			// TestForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(284, 262);
+			this.Controls.Add(this.autoUpdate_Cb);
 			this.Controls.Add(this.nextMapTxt);
 			this.Controls.Add(this.addressBox);
 			this.Controls.Add(this.downloadButton);
@@ -104,5 +124,7 @@
 		private System.Windows.Forms.Button downloadButton;
 		private System.Windows.Forms.TextBox addressBox;
 		private System.Windows.Forms.Label nextMapTxt;
+		private System.Windows.Forms.CheckBox autoUpdate_Cb;
+		private System.Windows.Forms.Timer UpdateTimer;
 	}
 }

@@ -48,7 +48,6 @@ namespace QueryTest {
 
 		private async void updateBtn_ClickAsync(object sender, EventArgs e) {
             await st.Update();
-           
         }
 
 		private async void downloadButton_Click(object sender, EventArgs e) {
@@ -63,6 +62,14 @@ namespace QueryTest {
 
 		private void TestForm_FormClosed(object sender, FormClosedEventArgs e) {
 			Settings.Default.Save();
+		}
+
+		private async void UpdateTimer_Tick(object sender, EventArgs e) {
+			await st.Update();
+		}
+
+		private void AutoUpdate_Cb_CheckedChanged(object sender, EventArgs e) {
+			UpdateTimer.Enabled = autoUpdate_Cb.Checked;
 		}
 	}
 }
