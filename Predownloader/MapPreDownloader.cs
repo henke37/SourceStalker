@@ -13,11 +13,11 @@ namespace Henke37.Valve.Source.Predownloader {
 		static Dictionary<int, string> installPaths=new Dictionary<int, string>();
 
 		private ServerStatus status;
-		private readonly string fastDLRoot;
+		public string FastDLRoot;
 
 		public MapPreDownloader(ServerStatus status, string fastDLRoot) {
 			this.status = status;
-			this.fastDLRoot = fastDLRoot;
+			this.FastDLRoot = fastDLRoot;
 		}
 
 		public Task ReadyServerAsync() {
@@ -55,7 +55,7 @@ namespace Henke37.Valve.Source.Predownloader {
 		}
 
 		private async Task DownloadFile(string fileNameAndPath, string downloadedPath) {
-			string downloadURL = $"{fastDLRoot}/{fileNameAndPath}";
+			string downloadURL = $"{FastDLRoot}/{fileNameAndPath}";
 			string bz2URL = $"{downloadURL}.bz2";
 
 			var client = new HttpClient();

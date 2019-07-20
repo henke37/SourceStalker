@@ -8,7 +8,7 @@
 		<PackageProjectUrl>https://github.com/henke37/SourceStalker</PackageProjectUrl>
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Description>Utility class to fetch and download maps from a source game server that is using the fastdownload protocol.</Description>
 	</PropertyGroup>
 

@@ -10,8 +10,9 @@ namespace QueryTest {
         private ServerStatus st;
 
 		private MapPreDownloader dn;
+		private bool downloading;
 
-        public TestForm() {
+		public TestForm() {
             InitializeComponent();
             st = new ServerStatus();
             st.Address = addressBox.Text;
@@ -19,7 +20,7 @@ namespace QueryTest {
 
 			st.StateChanged += St_StateChanged;
 
-			dn = new MapPreDownloader(st, "http://redirect.tf2maps.net/");
+			dn = new MapPreDownloader(st, downloadRoot_txt.Text);
 		}
 
 		private void St_StateChanged(ServerStatus obj) {
@@ -36,7 +37,7 @@ namespace QueryTest {
 				return;
 			}
 			if(st.Info == null) return;
-			downloadButton.Enabled = true;
+			downloadButton.Enabled = !downloading;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 
 			string nextMap = st.Rules["nextlevel"];
@@ -52,8 +53,10 @@ namespace QueryTest {
 
 		private async void downloadButton_Click(object sender, EventArgs e) {
 			downloadButton.Enabled = false;
+			downloading = true;
 			await dn.ReadyServerAsync();
-			downloadButton.Enabled = true;
+			downloading = false;
+			downloadButton.Enabled = CanStartDownload;
 		}
 
 		private void addressBox_TextChanged(object sender, EventArgs e) {
@@ -66,10 +69,25 @@ namespace QueryTest {
 
 		private async void UpdateTimer_Tick(object sender, EventArgs e) {
 			await st.Update();
+			if(CanStartDownload) {
+				await dn.ReadyServerAsync();
+			}
+		}
+
+		private bool CanStartDownload {
+			get {
+				return !downloading && st.Info != null && autoUpdate_Cb.Checked && !downloading && !string.IsNullOrEmpty(downloadRoot_txt.Text);
+			}
 		}
 
 		private void AutoUpdate_Cb_CheckedChanged(object sender, EventArgs e) {
 			UpdateTimer.Enabled = autoUpdate_Cb.Checked;
+			AutoDownload_cb.Enabled = autoUpdate_Cb.Checked;
+		}
+
+		private void DownloadRoot_txt_TextChanged(object sender, EventArgs e) {
+			dn.FastDLRoot = downloadRoot_txt.Text;
+			downloadButton.Enabled = CanStartDownload;
 		}
 	}
 }

@@ -34,5 +34,17 @@ namespace QueryTest.Properties {
                 this["ServerAddress"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DownloadUrl {
+            get {
+                return ((string)(this["DownloadUrl"]));
+            }
+            set {
+                this["DownloadUrl"] = value;
+            }
+        }
     }
 }
