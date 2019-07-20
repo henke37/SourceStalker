@@ -13,7 +13,7 @@ namespace QueryTest {
 		static void Main() {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new TestForm());
+			Application.Run(new PredownloadForm());
 		}
 	}
 }

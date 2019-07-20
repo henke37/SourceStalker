@@ -5,14 +5,14 @@ using System;
 using System.Windows.Forms;
 
 namespace QueryTest {
-    public partial class TestForm : Form {
+    public partial class PredownloadForm : Form {
 
         private ServerStatus st;
 
 		private MapPreDownloader dn;
 		private bool downloading;
 
-		public TestForm() {
+		public PredownloadForm() {
             InitializeComponent();
             st = new ServerStatus();
             st.Address = addressBox.Text;
