@@ -76,7 +76,7 @@ namespace QueryTest {
 
 		private bool CanStartDownload {
 			get {
-				return !downloading && st.Info != null && AutoDownload_cb.Checked && !downloading && !string.IsNullOrEmpty(downloadRoot_txt.Text);
+				return !downloading && st.Info != null && AutoDownload_cb.Checked && !string.IsNullOrEmpty(downloadRoot_txt.Text);
 			}
 		}
 
