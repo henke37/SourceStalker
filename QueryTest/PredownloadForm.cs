@@ -40,11 +40,7 @@ namespace QueryTest {
 			downloadButton.Enabled = !downloading;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 
-			string nextMap = st.Rules["nextlevel"];
-			if(st.Rules.TryGetCVar("sm_nextmap", out string smNextMap)) {
-				nextMap = smNextMap;
-			}
-			nextMapTxt.Text = nextMap;
+			nextMapTxt.Text = st.Rules.NextMap;
 		}
 
 		private async void updateBtn_ClickAsync(object sender, EventArgs e) {

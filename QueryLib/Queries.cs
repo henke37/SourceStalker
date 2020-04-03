@@ -174,6 +174,14 @@ namespace Henke37.Valve.Source.ServerQuery {
 		public string this[string varName] {
 			get { return Rules[varName]; }
 		}
+
+		public string NextMap {
+			get {
+				if(Rules.TryGetValue("sm_nextmap", out string smNextMap)) return smNextMap;
+				if(Rules.TryGetValue("nextlevel", out string nextMap)) return nextMap;
+				return null;
+			}
+		}
 	}
 
 	internal class A2S_PLAYER_Query : BaseChallengeQuery {

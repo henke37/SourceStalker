@@ -24,10 +24,7 @@ namespace Henke37.Valve.Source.Predownloader {
 			string mapName = status.Info.Map;
 			var nowT=ReadyMapAsync(mapName);
 
-			string nextMap=status.Rules["nextlevel"];
-			if(status.Rules.TryGetCVar("sm_nextmap",out string smNextMap)) {
-				nextMap = smNextMap;
-			}
+			string nextMap = status.Rules.NextMap;
 
 			Task nextT;
 			if(nextMap!="" && nextMap!=mapName) {
