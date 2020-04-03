@@ -35,9 +35,28 @@
 			this.AutoDownload_cb = new System.Windows.Forms.CheckBox();
 			this.downloadRoot_txt = new System.Windows.Forms.TextBox();
 			this.addressBox = new System.Windows.Forms.TextBox();
+			this.httpErrCode = new System.Windows.Forms.Label();
 			label1 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(12, 9);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(78, 13);
+			label1.TabIndex = 8;
+			label1.Text = "Server address";
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(12, 48);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(113, 13);
+			label2.TabIndex = 9;
+			label2.Text = "Fastdownload address";
 			// 
 			// updateBtn
 			// 
@@ -124,29 +143,23 @@
 			this.addressBox.Text = global::QueryTest.Properties.Settings.Default.ServerAddress;
 			this.addressBox.TextChanged += new System.EventHandler(this.addressBox_TextChanged);
 			// 
-			// label1
+			// httpErrCode
 			// 
-			label1.AutoSize = true;
-			label1.Location = new System.Drawing.Point(12, 9);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(78, 13);
-			label1.TabIndex = 8;
-			label1.Text = "Server address";
-			// 
-			// label2
-			// 
-			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(12, 48);
-			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(113, 13);
-			label2.TabIndex = 9;
-			label2.Text = "Fastdownload address";
+			this.httpErrCode.AutoSize = true;
+			this.httpErrCode.ForeColor = System.Drawing.Color.Red;
+			this.httpErrCode.Location = new System.Drawing.Point(172, 144);
+			this.httpErrCode.Name = "httpErrCode";
+			this.httpErrCode.Size = new System.Drawing.Size(30, 13);
+			this.httpErrCode.TabIndex = 10;
+			this.httpErrCode.Text = "ERR";
+			this.httpErrCode.Visible = false;
 			// 
 			// PredownloadForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(284, 170);
+			this.Controls.Add(this.httpErrCode);
 			this.Controls.Add(label2);
 			this.Controls.Add(label1);
 			this.Controls.Add(this.downloadRoot_txt);
@@ -176,5 +189,6 @@
 		private System.Windows.Forms.Timer UpdateTimer;
 		private System.Windows.Forms.CheckBox AutoDownload_cb;
 		private System.Windows.Forms.TextBox downloadRoot_txt;
+		private System.Windows.Forms.Label httpErrCode;
 	}
 }

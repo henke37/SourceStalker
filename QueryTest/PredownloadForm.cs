@@ -2,6 +2,7 @@
 using Henke37.Valve.Source.ServerQuery;
 using QueryTest.Properties;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -50,14 +51,22 @@ namespace QueryTest {
 
 		private async void downloadButton_Click(object sender, EventArgs e) {
 			downloadButton.Enabled = false;
-			await downloadMap();
+			try {
+				await downloadMap();
+				httpErrCode.Visible = false;
+			} catch(HttpRequestException err) {
+				httpErrCode.Visible = true;
+			}
 			downloadButton.Enabled = CanStartDownload;
 		}
 
 		private async Task downloadMap() {
 			downloading = true;
-			await dn.ReadyServerAsync();
-			downloading = false;
+			try {
+				await dn.ReadyServerAsync();
+			} finally {
+				downloading = false;
+			}
 		}
 
 		private void addressBox_TextChanged(object sender, EventArgs e) {
