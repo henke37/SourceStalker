@@ -50,22 +50,20 @@ namespace QueryTest {
         }
 
 		private async void downloadButton_Click(object sender, EventArgs e) {
-			downloadButton.Enabled = false;
-			try {
-				await downloadMap();
-				httpErrCode.Visible = false;
-			} catch(HttpRequestException err) {
-				httpErrCode.Visible = true;
-			}
-			downloadButton.Enabled = CanStartDownload;
+			await downloadMap();
 		}
 
 		private async Task downloadMap() {
 			downloading = true;
+			downloadButton.Enabled = false;
 			try {
 				await dn.ReadyServerAsync();
+				httpErrCode.Visible = false;
+			} catch(HttpRequestException err) {
+				httpErrCode.Visible = true;
 			} finally {
 				downloading = false;
+				downloadButton.Enabled = CanStartDownload;
 			}
 		}
 
