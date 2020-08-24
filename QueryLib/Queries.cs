@@ -1,5 +1,6 @@
 ﻿using Henke37.IOUtils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -155,7 +156,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 		public A2S_RULES_Query(uint challenge) : base(Header, challenge) { }
 	}
 
-	public class A2S_RULES_Response : BaseResponse {
+	public class A2S_RULES_Response : BaseResponse, IReadOnlyDictionary<string, string> {
 
 		public Dictionary<string, string> Rules;
 
@@ -171,6 +172,23 @@ namespace Henke37.Valve.Source.ServerQuery {
 		}
 
 		public bool TryGetCVar(string varName, out string varValue) => Rules.TryGetValue(varName, out varValue);
+
+		public bool ContainsKey(string key) {
+			return Rules.ContainsKey(key);
+		}
+
+		public bool TryGetValue(string key, out string value) {
+			return Rules.TryGetValue(key, out value);
+		}
+
+		public IEnumerator<KeyValuePair<string, string>> GetEnumerator() {
+			return Rules.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return Rules.GetEnumerator();
+		}
+
 		public string this[string varName] {
 			get { return Rules[varName]; }
 		}
@@ -182,6 +200,12 @@ namespace Henke37.Valve.Source.ServerQuery {
 				return null;
 			}
 		}
+
+		public IEnumerable<string> Keys => Rules.Keys;
+
+		public IEnumerable<string> Values => Rules.Values;
+
+		public int Count => Rules.Count;
 	}
 
 	internal class A2S_PLAYER_Query : BaseChallengeQuery {
@@ -190,7 +214,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 		public A2S_PLAYER_Query(uint challenge) : base(Header, challenge) { }
 	}
 
-	public class A2S_PLAYER_Response : BaseResponse {
+	public class A2S_PLAYER_Response : BaseResponse, IReadOnlyList<A2S_PLAYER_Response.Player> {
 
 		public Player[] Players;
 
@@ -207,6 +231,18 @@ namespace Henke37.Valve.Source.ServerQuery {
 
 				Players[playerIndex] = new Player(name, score, playtime);
 			}
+		}
+
+		public Player this[int index] => Players[index];
+
+		public int Count => Players.Length;
+
+		public IEnumerator<Player> GetEnumerator() {
+			return ((IEnumerable<Player>)Players).GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return Players.GetEnumerator();
 		}
 
 		public class Player {
