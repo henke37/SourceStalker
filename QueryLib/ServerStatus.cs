@@ -119,20 +119,39 @@ namespace Henke37.Valve.Source.ServerQuery {
 			}
 		}
 
-		public async Task Update() {
+		public async Task Update(UpdateFields updateFields = UpdateFields.All) {
 			State = QueryState.QuerySent;
 			try {
 
 				QueryTime = DateTime.Now;
-				waitingForInfo = true;
-				SendQuery(new A2S_INFO_Request());
 
-				waitingForRules = true;
-				SendQuery(new A2S_RULES_Query());
+				if((updateFields & UpdateFields.Info) != 0) {
+					waitingForInfo = true;
+					SendQuery(new A2S_INFO_Request());
+				}
+
+				if((updateFields & UpdateFields.Rules) != 0) {
+					waitingForRules = true;
+					SendQuery(new A2S_RULES_Query());
+				}
+
+				//only send player query rightaway if not sending rules query
+				//because they both use the challenge system
+				if((updateFields & UpdateFields.Players) != 0 && ((updateFields & UpdateFields.Rules) == 0)) {
+					waitingForPlayers = true;
+					SendQuery(new A2S_PLAYER_Query());
+				}
 
 				while(State==QueryState.QuerySent) {
 					var response = await AwaitResponse();
 					ResponseReceived(response);
+
+					if((updateFields & UpdateFields.Players) != 0 && ((updateFields & UpdateFields.Rules) != 0) && !waitingForRules) {
+						//asked for both and just got the rules
+						//time to send the player query
+						waitingForPlayers = true;
+						SendQuery(new A2S_PLAYER_Query());
+					}
 				}
 
 			} catch(SocketException err) {
