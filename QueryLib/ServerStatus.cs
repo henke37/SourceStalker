@@ -127,11 +127,13 @@ namespace Henke37.Valve.Source.ServerQuery {
 
 				if((updateFields & UpdateFields.Info) != 0) {
 					waitingForInfo = true;
+					Info = null;
 					SendQuery(new A2S_INFO_Request());
 				}
 
 				if((updateFields & UpdateFields.Rules) != 0) {
 					waitingForRules = true;
+					Rules = null;
 					SendQuery(new A2S_RULES_Query());
 				}
 
@@ -139,6 +141,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 				//because they both use the challenge system
 				if((updateFields & UpdateFields.Players) != 0 && ((updateFields & UpdateFields.Rules) == 0)) {
 					waitingForPlayers = true;
+					Players = null;
 					SendQuery(new A2S_PLAYER_Query());
 				}
 
@@ -150,6 +153,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 						//asked for both and just got the rules
 						//time to send the player query
 						waitingForPlayers = true;
+						Players = null;
 						SendQuery(new A2S_PLAYER_Query());
 					}
 				}
