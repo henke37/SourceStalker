@@ -35,11 +35,11 @@ namespace QueryTest {
 
 			if(st.State == ServerStatus.QueryState.TimeOut) {
 				mapTxt.Text = "TIME_OUT";
-				downloadButton.Enabled = false;
+				updateDownloadButton();
 				return;
 			}
+			updateDownloadButton();
 			if(st.Info == null) return;
-			downloadButton.Enabled = !downloading;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 
 			nextMapTxt.Text = st.Rules.NextMap;
@@ -63,8 +63,17 @@ namespace QueryTest {
 				httpErrCode.Visible = true;
 			} finally {
 				downloading = false;
-				downloadButton.Enabled = CanStartDownload;
+				updateDownloadButton();
 			}
+		}
+
+		private void updateDownloadButton() {
+			if(downloadButton.InvokeRequired) {
+				downloadButton.Invoke(new Action(updateDownloadButton));
+				return;
+			}
+			downloadButton.Text = dn.MapsAreReady? "Downloaded." : "Download!";
+			downloadButton.Enabled = CanStartDownload;
 		}
 
 		private void addressBox_TextChanged(object sender, EventArgs e) {
@@ -77,14 +86,14 @@ namespace QueryTest {
 
 		private async void UpdateTimer_Tick(object sender, EventArgs e) {
 			await st.Update();
-			if(CanStartDownload) {
+			if(CanStartDownload && AutoDownload_cb.Checked) {
 				await downloadMap();
 			}
 		}
 
 		private bool CanStartDownload {
 			get {
-				return !downloading && st.Info != null && AutoDownload_cb.Checked && !string.IsNullOrEmpty(downloadRoot_txt.Text);
+				return !downloading && st.Info != null && !string.IsNullOrEmpty(downloadRoot_txt.Text) && !dn.MapsAreReady;
 			}
 		}
 
@@ -95,7 +104,7 @@ namespace QueryTest {
 
 		private void DownloadRoot_txt_TextChanged(object sender, EventArgs e) {
 			dn.FastDLRoot = downloadRoot_txt.Text;
-			downloadButton.Enabled = CanStartDownload;
+			updateDownloadButton();
 		}
 	}
 }
