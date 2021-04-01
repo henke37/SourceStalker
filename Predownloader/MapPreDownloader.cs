@@ -36,6 +36,29 @@ namespace Henke37.Valve.Source.Predownloader {
 			return Task.WhenAll(nextT, nowT);
 		}
 
+		public bool MapsAreReady {
+			get {
+				if(status.Info is null || !IsMapReady(status.Info.Map)) return false;
+				if(status.Rules is null || !IsMapReady(status.Rules.NextMap)) return false;
+
+				return true;
+			}
+		}
+
+		private bool IsMapReady(string mapName) {
+			string installPath = getInstallPath(status.Info.Id);
+
+			string mapDownloadFolder = $@"{installPath}\{status.Info.Folder}\download\maps\";
+			string mapStockFolder = $@"{installPath}\{status.Info.Folder}\maps\";
+
+			string downloadedPath = mapDownloadFolder + mapName + ".bsp";
+			string stockPath = mapStockFolder + mapName + ".bsp";
+			if(File.Exists(downloadedPath)) return true;
+			if(File.Exists(stockPath)) return true;
+
+			return false;
+		}
+
 		private Task ReadyMapAsync(string mapName) {
 			string installPath = getInstallPath(status.Info.Id);
 
