@@ -93,7 +93,7 @@ namespace QueryTest {
 
 		private bool CanStartDownload {
 			get {
-				return !downloading && st.Info != null && !string.IsNullOrEmpty(downloadRoot_txt.Text) && !dn.MapsAreReady;
+				return !downloading && st.Info != null && st.Rules != null && !string.IsNullOrEmpty(downloadRoot_txt.Text) && !dn.MapsAreReady;
 			}
 		}
 
