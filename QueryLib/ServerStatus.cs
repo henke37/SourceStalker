@@ -17,16 +17,16 @@ namespace Henke37.Valve.Source.ServerQuery {
 
 		private Socket client;
 
-		private bool waitingForInfo;
-		private bool waitingForPlayers;
-		private bool waitingForRules;
-
 		public A2S_INFO_Response Info;
 		public A2S_RULES_Response Rules;
 		public A2S_PLAYER_Response Players;
 
 		private DateTime QueryTime;
 		private DateTime responseTime;
+
+		private Fields updateFields;
+		private Fields pendingField;
+
 
 		public TimeSpan PingTime { get => responseTime - QueryTime; }
 
@@ -43,7 +43,6 @@ namespace Henke37.Valve.Source.ServerQuery {
 		private QueryState _state = QueryState.Invalid;
 
 		public event Action<ServerStatus> StateChanged;
-
 
 		private static readonly byte[] QueryPrefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
 		private const short DefaultPort = 27015;
@@ -119,43 +118,17 @@ namespace Henke37.Valve.Source.ServerQuery {
 			}
 		}
 
-		public async Task Update(UpdateFields updateFields = UpdateFields.All) {
+		public async Task Update(Fields fields = Fields.All) {
 			State = QueryState.QuerySent;
 			try {
 
 				QueryTime = DateTime.Now;
+				this.updateFields = fields;
+				SendNextQuery();
 
-				if((updateFields & UpdateFields.Info) != 0) {
-					waitingForInfo = true;
-					Info = null;
-					SendQuery(new A2S_INFO_Request());
-				}
-
-				if((updateFields & UpdateFields.Rules) != 0) {
-					waitingForRules = true;
-					Rules = null;
-					SendQuery(new A2S_RULES_Query());
-				}
-
-				//only send player query rightaway if not sending rules query
-				//because they both use the challenge system
-				if((updateFields & UpdateFields.Players) != 0 && ((updateFields & UpdateFields.Rules) == 0)) {
-					waitingForPlayers = true;
-					Players = null;
-					SendQuery(new A2S_PLAYER_Query());
-				}
-
-				while(State==QueryState.QuerySent) {
+				while(State == QueryState.QuerySent) {
 					var response = await AwaitResponse();
 					ResponseReceived(response);
-
-					if((updateFields & UpdateFields.Players) != 0 && ((updateFields & UpdateFields.Rules) != 0) && !waitingForRules) {
-						//asked for both and just got the rules
-						//time to send the player query
-						waitingForPlayers = true;
-						Players = null;
-						SendQuery(new A2S_PLAYER_Query());
-					}
 				}
 
 			} catch(SocketException err) {
@@ -164,39 +137,64 @@ namespace Henke37.Valve.Source.ServerQuery {
 			}
 		}
 
+		private void SendNextQuery() {
+			if((updateFields & Fields.Info) != 0) {
+				pendingField = Fields.Info;
+				Info = null;
+				SendQuery(new A2S_INFO_Request());
+				return;
+			}
+
+			if((updateFields & Fields.Rules) != 0) {
+				pendingField = Fields.Rules;
+				Rules = null;
+				SendQuery(new A2S_RULES_Query());
+				return;
+			}
+
+			if((updateFields & Fields.Players) != 0) {
+				pendingField = Fields.Players;
+				Players = null;
+				SendQuery(new A2S_PLAYER_Query());
+				return;
+			}
+
+			pendingField = Fields.None;
+			State = QueryState.AnswerReceived;
+		}
+
 		private void ResponseReceived(BaseResponse response) {
 			switch(response) {
 				case A2S_INFO_Response infoR:
 					Info = infoR;
 					responseTime = DateTime.Now;
-					waitingForInfo = false;
+					updateFields &= ~Fields.Info;
 					break;
 
 				case A2S_RULES_Response rulesR:
 					Rules = rulesR;
-					waitingForRules = false;
-
-					waitingForPlayers = true;
-					SendQuery(new A2S_PLAYER_Query());
+					updateFields &= ~Fields.Rules;
 					break;
 
 				case A2S_PLAYER_Response playersR:
 					Players = playersR;
-					waitingForPlayers = false;
+					updateFields &= ~Fields.Players;
 					break;
 
 				case A2S_SERVERQUERY_GETCHALLENGE_Response challenge:
-					if(waitingForRules) {
+					if(pendingField == Fields.Info) {
+						SendQuery(new A2S_INFO_Request(challenge.Challenge));
+					} else if(pendingField == Fields.Rules) {
 						SendQuery(new A2S_RULES_Query(challenge.Challenge));
-					} else if(waitingForPlayers) {
+					} else if(pendingField == Fields.Players) {
 						SendQuery(new A2S_PLAYER_Query(challenge.Challenge));
 					}
 
 					break;
 			}
 
-			if(!(waitingForInfo || waitingForRules || waitingForPlayers)) {
-				State = QueryState.AnswerReceived;
+			if(!(response is A2S_SERVERQUERY_GETCHALLENGE_Response)) {
+				SendNextQuery();
 			}
 		}
 

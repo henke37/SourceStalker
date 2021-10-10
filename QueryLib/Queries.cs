@@ -12,12 +12,23 @@ namespace Henke37.Valve.Source.ServerQuery {
 
 		private const byte Header = 0x54;
 		private const string Payload = "Source Engine Query";
+		public uint Challenge;
+
+		public A2S_INFO_Request() {
+		}
+
+		public A2S_INFO_Request(uint challenge) {
+			Challenge = challenge;
+		}
 
 		public override void BuildQuery(Stream s) {
 			using(BinaryWriter w = new BinaryWriter(s, Encoding.UTF8)) {
 				w.Write(Header);
 				w.Write(Payload.ToArray());
 				w.Write((byte)0);
+				if(Challenge != 0) {
+					w.Write(Challenge);
+				}
 			}
 		}
 	}
