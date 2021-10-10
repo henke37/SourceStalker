@@ -17,7 +17,7 @@
 		<Product>Henke37.Valve.Source.ServerQuery</Product>
 		<RepositoryUrl>https://github.com/henke37/SourceStalker</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.1.2</Version>
+		<Version>1.2.0</Version>
 		<PackageProjectUrl>https://github.com/henke37/SourceStalker</PackageProjectUrl>
 	</PropertyGroup>
 	<ItemGroup>
