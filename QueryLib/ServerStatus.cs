@@ -131,8 +131,7 @@ namespace Henke37.Valve.Source.ServerQuery {
 					ResponseReceived(response);
 				}
 
-			} catch(SocketException err) {
-				if(err.ErrorCode != (int)SocketError.TimedOut) throw;
+			} catch(SocketException err) when(err.ErrorCode == (int)SocketError.TimedOut) {
 				State = QueryState.TimeOut;
 			}
 		}
