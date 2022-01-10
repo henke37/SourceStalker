@@ -38,6 +38,9 @@ namespace QueryTest {
 				updateDownloadButton();
 				return;
 			}
+
+			if(st.State != ServerStatus.QueryState.AnswerReceived) return;
+
 			updateDownloadButton();
 			if(st.Info == null) return;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
