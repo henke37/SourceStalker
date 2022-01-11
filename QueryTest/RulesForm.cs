@@ -76,9 +76,14 @@ namespace QueryTest {
             var properties = new List<PropertyDescriptor>();
             foreach(var kv in rules) {
 				List<Attribute> atts = new List<Attribute>();
-
-				if(kv.Key.StartsWith("tf_passtime")) {
+				if(kv.Key.EndsWith("_version")) {
+					atts.Add(new CategoryAttribute("Version"));
+				} else if(kv.Key.StartsWith("tf_passtime")) {
 					atts.Add(new CategoryAttribute("Passtime"));
+				} else if(kv.Key.StartsWith("tf_arena_")) {
+					atts.Add(new CategoryAttribute("Arena"));
+				} else if(kv.Key.StartsWith("mp_tournament")) {
+					atts.Add(new CategoryAttribute("Tournament"));
 				} else if(kv.Key.StartsWith("tf_")) {
 					atts.Add(new CategoryAttribute("Team Fortress 2"));
 				} else if(kv.Key.StartsWith("sm_")) {
@@ -88,7 +93,10 @@ namespace QueryTest {
 				}
 
 				if(kv.Key=="sv_tags") {
-					properties.Add(new TagsPropertyDescriptor(kv.Key, atts.ToArray()));
+					properties.Add(new ListPropertyDescriptor(kv.Key, atts.ToArray(),','));
+					continue;
+				} else if(kv.Key=="mp_teamlist") {
+					properties.Add(new ListPropertyDescriptor(kv.Key, atts.ToArray(), ';'));
 					continue;
 				}
 
@@ -132,20 +140,22 @@ namespace QueryTest {
 		public override bool ShouldSerializeValue(object component) => false;
 	}
 
-	class TagsPropertyDescriptor : RulePropertyDescriptor {
-		public TagsPropertyDescriptor(string key, Attribute[] atts) : base(key, atts) {
+	class ListPropertyDescriptor : RulePropertyDescriptor {
+		private char separator;
+		public ListPropertyDescriptor(string key, Attribute[] atts, char separator) : base(key, atts) {
+			this.separator = separator;
 		}
 
 		public override Type PropertyType => typeof(string[]);
 
 		public override object GetValue(object component) {
 			var dict = (Dictionary<string, string>)component;
-			return dict[key].Split(',');
+			return dict[key].Split(separator);
 		}
 
 		public override void SetValue(object component, object value) {
 			var dict = (Dictionary<string, string>)component;
-			dict[key] = String.Join(",",(string[])value);
+			dict[key] = String.Join(separator.ToString(), (string[])value);
 		}
 	}
 }
