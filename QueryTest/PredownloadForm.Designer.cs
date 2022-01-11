@@ -36,6 +36,7 @@
 			this.downloadRoot_txt = new System.Windows.Forms.TextBox();
 			this.addressBox = new System.Windows.Forms.TextBox();
 			this.httpErrCode = new System.Windows.Forms.Label();
+			this.rules_btn = new System.Windows.Forms.Button();
 			label1 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
@@ -100,7 +101,7 @@
 			// autoUpdate_Cb
 			// 
 			this.autoUpdate_Cb.AutoSize = true;
-			this.autoUpdate_Cb.Location = new System.Drawing.Point(172, 96);
+			this.autoUpdate_Cb.Location = new System.Drawing.Point(172, 119);
 			this.autoUpdate_Cb.Name = "autoUpdate_Cb";
 			this.autoUpdate_Cb.Size = new System.Drawing.Size(84, 17);
 			this.autoUpdate_Cb.TabIndex = 5;
@@ -116,7 +117,7 @@
 			// AutoDownload_cb
 			// 
 			this.AutoDownload_cb.AutoSize = true;
-			this.AutoDownload_cb.Location = new System.Drawing.Point(172, 120);
+			this.AutoDownload_cb.Location = new System.Drawing.Point(172, 143);
 			this.AutoDownload_cb.Name = "AutoDownload_cb";
 			this.AutoDownload_cb.Size = new System.Drawing.Size(97, 17);
 			this.AutoDownload_cb.TabIndex = 6;
@@ -147,18 +148,30 @@
 			// 
 			this.httpErrCode.AutoSize = true;
 			this.httpErrCode.ForeColor = System.Drawing.Color.Red;
-			this.httpErrCode.Location = new System.Drawing.Point(172, 144);
+			this.httpErrCode.Location = new System.Drawing.Point(172, 167);
 			this.httpErrCode.Name = "httpErrCode";
 			this.httpErrCode.Size = new System.Drawing.Size(30, 13);
 			this.httpErrCode.TabIndex = 10;
 			this.httpErrCode.Text = "ERR";
 			this.httpErrCode.Visible = false;
 			// 
+			// rules_btn
+			// 
+			this.rules_btn.Enabled = false;
+			this.rules_btn.Location = new System.Drawing.Point(172, 90);
+			this.rules_btn.Name = "rules_btn";
+			this.rules_btn.Size = new System.Drawing.Size(75, 23);
+			this.rules_btn.TabIndex = 11;
+			this.rules_btn.Text = "Rules";
+			this.rules_btn.UseVisualStyleBackColor = true;
+			this.rules_btn.Click += new System.EventHandler(this.rules_btn_Click);
+			// 
 			// PredownloadForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(284, 170);
+			this.ClientSize = new System.Drawing.Size(284, 191);
+			this.Controls.Add(this.rules_btn);
 			this.Controls.Add(this.httpErrCode);
 			this.Controls.Add(label2);
 			this.Controls.Add(label1);
@@ -190,5 +203,6 @@
 		private System.Windows.Forms.CheckBox AutoDownload_cb;
 		private System.Windows.Forms.TextBox downloadRoot_txt;
 		private System.Windows.Forms.Label httpErrCode;
+		private System.Windows.Forms.Button rules_btn;
 	}
 }

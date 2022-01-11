@@ -35,6 +35,7 @@ namespace QueryTest {
 
 			if(st.State == ServerStatus.QueryState.TimeOut) {
 				mapTxt.Text = "TIME_OUT";
+				rules_btn.Enabled = false;
 				updateDownloadButton();
 				return;
 			}
@@ -45,6 +46,8 @@ namespace QueryTest {
 			if(st.Info == null) return;
 			mapTxt.Text = $"{st.Info.Map} {st.Info.PlayerCount}/{st.Info.MaxPlayerCount}";
 
+
+			rules_btn.Enabled = true;
 			nextMapTxt.Text = st.Rules.NextMap;
 		}
 
@@ -108,6 +111,10 @@ namespace QueryTest {
 		private void DownloadRoot_txt_TextChanged(object sender, EventArgs e) {
 			dn.FastDLRoot = downloadRoot_txt.Text;
 			updateDownloadButton();
+		}
+
+		private void rules_btn_Click(object sender, EventArgs e) {
+			new RulesForm(st.Rules.Rules).Show();
 		}
 	}
 }
