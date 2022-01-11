@@ -99,10 +99,8 @@ namespace QueryTest {
 				atts.Add(new CategoryAttribute("Source TV"));
 			}
 
-			if(key == "sv_tags") {
-				return new ListPropertyDescriptor(key, atts.ToArray(), ',');
-			} else if(key == "mp_teamlist") {
-				return new ListPropertyDescriptor(key, atts.ToArray(), ';');
+			if(key.Contains("password")) {
+				atts.Add(new PasswordPropertyTextAttribute());
 			}
 
 			switch(key) {
@@ -115,7 +113,6 @@ namespace QueryTest {
 				case "tf_arena_force_class":
 				case "tf_arena_use_queue":
 				case "tv_enable":
-				case "tv_password":
 				case "tf_allow_player_name_change":
 				case "tf_allow_player_use":
 				case "tf_gravetalk":
@@ -129,6 +126,11 @@ namespace QueryTest {
 				case "tf_weapon_criticals":
 				case "tf_weapon_criticals_melee":
 					return new BoolPropertyDescriptor(key, atts.ToArray());
+
+				case "sv_tags":
+					return new ListPropertyDescriptor(key, atts.ToArray(), ',');
+				case "mp_teamlist":
+					return new ListPropertyDescriptor(key, atts.ToArray(), ';');
 			}
 
 			return new StringPropertyDescriptor(key, atts.ToArray());
